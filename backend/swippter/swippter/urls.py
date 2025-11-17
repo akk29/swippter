@@ -21,3 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('app.routes.index_routes'))
 ]
+
+handler404 = 'app.core.exception_handler.Exception404'
+handler500 = 'app.core.exception_handler.Exception500'

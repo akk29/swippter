@@ -64,3 +64,16 @@ class IndexView(APIView):
             status=status.HTTP_200_OK,
         )
         return response
+
+
+class ErrorView(APIView):
+
+    throttle_classes = [UserRateThrottle]
+
+    def get(self,request,code):               
+        response = HttpResponse(
+            json.dumps({F.CODE: code}),
+            content_type=F.APPLICATION_JSON,
+            status=code,
+        )
+        return response
