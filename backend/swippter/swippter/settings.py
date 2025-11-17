@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
-    'corsheaders'
+    'corsheaders',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
@@ -94,13 +95,22 @@ if(DB == 'sqllite3'):
 THROTTLE_RATE = config('THROTTLE_RATE')
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {        
-        'user': THROTTLE_RATE
-    }
+        'user': THROTTLE_RATE,
+        'anon': THROTTLE_RATE
+    },
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Swippter Rest API',
+    'DESCRIPTION': 'Swippter is a Fast fashion Ecommerce',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False
 }
 
 # Password validation
