@@ -30,5 +30,5 @@ urlpatterns += [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
-handler404 = 'app.core.exception_handler.Exception404'
-handler500 = 'app.core.exception_handler.Exception500'
+handler404 = 'app.core.exceptions.Exception404'
+handler500 = 'app.core.exceptions.Exception500'

@@ -1,2 +1,0 @@
-class PermissionDeniedError(Exception):
-    pass

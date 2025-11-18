@@ -56,7 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'app.core.exception_handler.ExceptionHandler'
+    'app.core.exceptions.ExceptionHandler'
 ]
 
 ROOT_URLCONF = 'swippter.urls'
