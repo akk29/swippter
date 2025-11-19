@@ -1,10 +1,10 @@
-FROM python:3.13.3-alpine
+FROM python:3.14.0-alpine
 ENV PATH="/root/.cargo/bin/:$PATH"
 RUN set -ex \
     && apk update 
 COPY --from=ghcr.io/astral-sh/uv:0.9.10 /uv /uvx /bin/
 WORKDIR /app
-COPY . /app
+COPY ../../backend /app
 RUN uv sync --locked
 RUN source .venv/bin/activate
 EXPOSE 8000
@@ -14,5 +14,5 @@ RUN ["python", "manage.py", "makemigrations", "app"]
 RUN ["python", "manage.py", "migrate", "app"]
 RUN ["python", "manage.py", "makemigrations"]
 RUN ["python", "manage.py", "migrate"]
-RUN ["python", "manage.py", "collectstatic", "--noinput"]
+RUN ["python", "manage.py", "collectstatic", "--no-input"]
 CMD ["gunicorn", "swippter.wsgi", "--bind", "0.0.0.0:8000", "--workers", "4", "--threads", "4"]

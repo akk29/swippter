@@ -1,0 +1,24 @@
+services:
+    nginx:
+        restart: always
+        image: nginx:1.23-alpine
+        ports:
+            - 8000:80
+        build:
+            context: ../../            
+        expose:
+            - 80
+        volumes:
+            - ./backend/nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - static_volume:/app/swippter/static
+    server:
+        restart: unless-stopped
+        build:
+            context: ../../
+            dockerfile: ./infra/docker/backend/Dockerfile
+        volumes:
+            - static_volume:/app/swippter/static
+        expose:
+            - 8000
+volumes:
+    static_volume: {}
