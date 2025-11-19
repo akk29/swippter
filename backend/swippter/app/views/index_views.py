@@ -55,5 +55,12 @@ class ErrorView(APIView):
     throttle_classes = [UserRateThrottle]
 
     def get(self, request, code):
-        response = get_http_response({F.CODE: code}, code)
+        payload = {
+            F.STATUS: code,
+            F.NAME: F.ERRORS,
+            F.CODE: code,
+            F.MSG: F.ERRORS,
+            F.ERRORS: [],
+        }
+        response = get_http_response(payload, code)
         return response

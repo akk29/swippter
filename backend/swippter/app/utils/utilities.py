@@ -11,7 +11,7 @@ class FILLER:
     STATUS = "status"
     VERSION = "version"
     V1 = "v1"
-    ERRORS = "ERRORS"
+    ERRORS = "errors"
 
     # Errors msgs
     BAD_REQUEST= "Bad Request"

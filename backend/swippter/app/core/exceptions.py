@@ -14,7 +14,7 @@ def Exception404(request, *args, **argv):
         F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
         F.CODE: S.HTTP_404_NOT_FOUND,
         F.MSG: F.NOT_FOUND,
-        F.ERRORS: {},
+        F.ERRORS: [],
     }
     response = get_http_response(payload, S.HTTP_404_NOT_FOUND)
     return response
@@ -25,7 +25,7 @@ def Exception500(request, *args, **argv):
         F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
         F.CODE: S.HTTP_500_INTERNAL_SERVER_ERROR,
         F.MSG: F.INTERNAL_SERVER_ERROR,
-        F.ERRORS: {},
+        F.ERRORS: [],
     }
     response = get_http_response(payload, S.HTTP_500_INTERNAL_SERVER_ERROR)
     return response
@@ -46,7 +46,7 @@ class BaseError(Exception):
         self.code = args[0] or kwargs.pop("code", None)
         self.name = kwargs.pop("name", None)
         self.msg = args[1] or kwargs.pop("msg", None)
-        self.errors = args[2] or kwargs.pop("errors", {})
+        self.errors = args[2] or kwargs.pop("errors", [])
         super().__init__(self.msg)
 
     def __process_exception__(self):
