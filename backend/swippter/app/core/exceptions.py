@@ -1,5 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 from rest_framework import status as S
+from app.core.logging import Logger
 from app.utils.utilities import F, get_http_response
 
 class ExceptionHandler(MiddlewareMixin):
@@ -47,6 +48,7 @@ class BaseError(Exception):
         self.name = kwargs.pop("name", None)
         self.msg = args[1] or kwargs.pop("msg", None)
         self.errors = args[2] or kwargs.pop("errors", [])
+        Logger.log(self)
         super().__init__(self.msg)
 
     def __process_exception__(self):
