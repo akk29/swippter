@@ -23,6 +23,7 @@ class Logger:
                     logger.addHandler(handler)
                     logger.propagate = False
                     Logger._instance = logger
+                    logger.info('Setting up logger - objID - {}'.format(id(Logger._instance)))
             finally:
                 Logger._lock.release()
         return Logger._instance

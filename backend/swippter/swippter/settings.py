@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'corsheaders',
-    'drf_spectacular'
+    'drf_spectacular',
+    'app.config.AppConfig'
 ]
 
 MIDDLEWARE = [

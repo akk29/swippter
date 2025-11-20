@@ -1,14 +1,5 @@
-FROM python:3.14.0-alpine
-ENV PATH="/root/.cargo/bin/:$PATH"
-RUN set -ex \
-    && apk update 
-COPY --from=ghcr.io/astral-sh/uv:0.9.10 /uv /uvx /bin/
-WORKDIR /app
-COPY ../../backend /app
-RUN uv sync --locked
-RUN source .venv/bin/activate
-EXPOSE 8000
-ENV PATH="/app/.venv/bin:$PATH"
+FROM backend-dependencies:latest
+COPY ../../backend/ /app
 WORKDIR /app/swippter
 RUN ["python", "manage.py", "makemigrations", "app"]
 RUN ["python", "manage.py", "migrate", "app"]
