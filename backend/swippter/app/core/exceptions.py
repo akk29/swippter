@@ -1,7 +1,23 @@
 from django.utils.deprecation import MiddlewareMixin
 from rest_framework import status as S
+from rest_framework.exceptions import Throttled
+from rest_framework.views import exception_handler
 from app.core.logging import Logger
 from app.utils.utilities import F, get_http_response
+
+def process_library_exceptions(exc, context):
+    response = exception_handler(exc, context)
+    if isinstance(exc, Throttled):
+        wait_time = exc.wait
+        payload = {
+            F.STATUS: S.HTTP_429_TOO_MANY_REQUESTS,
+            F.NAME: ERROR_NAME.TOO_MANY_REQUESTS_ERROR,
+            F.CODE: S.HTTP_429_TOO_MANY_REQUESTS,
+            F.MSG: F.TOO_MANY_REQUESTS.format(wait_time),
+            F.ERRORS: [],
+        }
+        response = get_http_response(payload, payload[F.STATUS])
+    return response
 
 class ExceptionHandler(MiddlewareMixin):
     def process_exception(self, request, exception):

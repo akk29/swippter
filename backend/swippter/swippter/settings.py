@@ -118,6 +118,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {"user": THROTTLE_RATE, "anon": THROTTLE_RATE},
     'DEFAULT_ETAG_FUNC': 'app.views.index_views.my_etag_func',
+    'EXCEPTION_HANDLER': "app.core.exceptions.process_library_exceptions",
 }
 
 SPECTACULAR_SETTINGS = {

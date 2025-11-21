@@ -16,10 +16,10 @@ class IndexView(APIView):
 
     throttle_classes = [UserRateThrottle]
 
-    @method_decorator(
-        condition(etag_func=my_etag_func, last_modified_func=my_last_modified_func),
-        name="dispatch",
-    )
+    # @method_decorator(
+    #     condition(etag_func=my_etag_func, last_modified_func=my_last_modified_func),
+    #     name="dispatch",
+    # )
     def get(self, request):
         response = get_http_response(
             {F.VERSION: F.V1, F.METHOD: request.method}, status.HTTP_200_OK

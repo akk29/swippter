@@ -22,6 +22,7 @@ class FILLER:
     NOT_FOUND = "Not found"
     FORBIDDEN = "Forbidden"
     UNAUTHORIZED = "Unauthorized"
+    TOO_MANY_REQUESTS = "You have made too many requests. Please try again later. Retry after {} seconds"
     UNPROCESSABLE = "Unprocessable"
 
 F = FILLER
