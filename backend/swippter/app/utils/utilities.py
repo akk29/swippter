@@ -1,4 +1,6 @@
 import json
+import hashlib
+import datetime
 from django.http import HttpResponse
 
 class FILLER:
@@ -29,3 +31,9 @@ def get_http_response(payload=None, status=None,content_type=None):
         json.dumps(payload), status=status, content_type=F.APPLICATION_JSON
     )
     return response
+
+def my_etag_func(request, **kwargs):
+    return hashlib.sha256(f"fixed".encode()).hexdigest()
+
+def my_last_modified_func(request, **kwargs):
+    return datetime(2024, 1, 1, 12, 0)
