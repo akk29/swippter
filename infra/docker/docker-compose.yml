@@ -19,6 +19,7 @@ services:
         volumes:
             - static_volume:/app/swippter/static        
     server:
+        image: swippter-backend-server:latest
         restart: unless-stopped
         build:
             context: ../../
@@ -26,8 +27,18 @@ services:
         volumes:
             - static_volume:/app/swippter/static
         expose:
-            - 8000
+            - 8000   
         depends_on:
-            - dependencies    
+            - redis
+            - dependencies
+    redis:
+        restart: always
+        image: redis
+        ports:
+            - 6379:6379
+        build:
+            context: ../../            
+        expose:
+            - 6379        
 volumes:
     static_volume: {}

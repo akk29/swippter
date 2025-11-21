@@ -1,8 +1,8 @@
 FROM python:3.14.0-alpine
-RUN set -ex \
-    && apk update \
-    && pip3 install --upgrade pip
+RUN set -ex && apk update
+ENV PATH="/root/.cargo/bin/:$PATH"
+COPY --from=ghcr.io/astral-sh/uv:0.9.10 /uv /uvx /bin/
 WORKDIR /app
-COPY ../../backend/swippter/requirements.txt /app/swippter/
-WORKDIR /app/swippter
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY ../../backend/ /app 
+RUN uv sync --locked
+RUN source .venv/bin/activate
