@@ -9,7 +9,7 @@ class ExceptionHandler(MiddlewareMixin):
         response = get_http_response(payload, payload[F.STATUS])
         return response
 
-def Exception404(request, *args, **argv):
+def Exception404(request, *args, **kwargs):
     payload = {
         F.STATUS: S.HTTP_404_NOT_FOUND,
         F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
@@ -20,7 +20,7 @@ def Exception404(request, *args, **argv):
     response = get_http_response(payload, S.HTTP_404_NOT_FOUND)
     return response
 
-def Exception500(request, *args, **argv):
+def Exception500(request, *args, **kwargs):
     payload = {
         F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
         F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
