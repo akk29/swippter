@@ -56,6 +56,9 @@ class ERROR_NAME:
     UNPROCESSABLE_ERROR = "UNPROCESSABLE_ERROR"
     INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
 
+class CUSTOM_CODE:
+    USERNAME_TAKEN = "428e5342"
+
 class BaseError(Exception):
 
     def __init__(self, *args, **kwargs):

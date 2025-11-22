@@ -14,6 +14,8 @@ class FILLER:
     VERSION = "version"
     V1 = "v1"
     ERRORS = "errors"
+    FIELD = "field"
+    USERNAME = "username"
 
     # Errors msgs
     BAD_REQUEST= "Bad Request"
@@ -24,6 +26,9 @@ class FILLER:
     UNAUTHORIZED = "Unauthorized"
     TOO_MANY_REQUESTS = "You have made too many requests. Please try again later. Retry after {} seconds"
     UNPROCESSABLE = "Unprocessable"
+
+    # Custom Error msgs
+    USERNAME_UNAVAILABLE = "Username unavailable"
 
 F = FILLER
 
