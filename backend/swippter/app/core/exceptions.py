@@ -87,6 +87,16 @@ class BadRequestError(BaseError):
         }
         super().__init__(*[code, msg, errors], **kwargs)
 
+class UnauthorizedError(BaseError):
+    def __init__(self, code=None, msg=None, errors=None):
+        kwargs = {
+            F.STATUS: S.HTTP_401_UNAUTHORIZED,
+            F.CODE: S.HTTP_401_UNAUTHORIZED,
+            F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+            F.MSG: F.UNAUTHORIZED,
+        }
+        super().__init__(*[code, msg, errors], **kwargs)
+
 class ForbiddenError(BaseError):
     def __init__(self, code=None, msg=None, errors=None):
         kwargs = {
@@ -94,17 +104,6 @@ class ForbiddenError(BaseError):
             F.CODE: S.HTTP_403_FORBIDDEN,
             F.NAME: ERROR_NAME.FORBIDDEN_ERROR,
             F.MSG: F.FORBIDDEN,
-        }
-        super().__init__(*[code, msg, errors], **kwargs)
-
-class MethodNotAllowedError(BaseError):
-
-    def __init__(self, code=None, msg=None, errors=None):
-        kwargs = {
-            F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
-            F.CODE: S.HTTP_405_METHOD_NOT_ALLOWED,
-            F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
-            F.MSG: F.METHOD_NOT_ALLOWED,
         }
         super().__init__(*[code, msg, errors], **kwargs)
 
@@ -118,13 +117,14 @@ class NotFoundError(BaseError):
         }
         super().__init__(*[code, msg, errors], **kwargs)
 
-class UnauthorizedError(BaseError):
+class MethodNotAllowedError(BaseError):
+
     def __init__(self, code=None, msg=None, errors=None):
         kwargs = {
-            F.STATUS: S.HTTP_401_UNAUTHORIZED,
-            F.CODE: S.HTTP_401_UNAUTHORIZED,
-            F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-            F.MSG: F.UNAUTHORIZED,
+            F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
+            F.CODE: S.HTTP_405_METHOD_NOT_ALLOWED,
+            F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
+            F.MSG: F.METHOD_NOT_ALLOWED,
         }
         super().__init__(*[code, msg, errors], **kwargs)
 

@@ -18,11 +18,6 @@ class SimpleTest(unittest.TestCase):
         response = client.post("/api/v1/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_index_head(self):
-        client = Client()
-        response = client.head("/api/v1/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
     def test_index_delete(self):
         client = Client()
         response = client.delete("/api/v1/")

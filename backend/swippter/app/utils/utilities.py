@@ -1,6 +1,6 @@
 import json
 import hashlib
-import datetime
+from datetime import datetime
 from django.http import HttpResponse
 
 class FILLER:
