@@ -3,10 +3,62 @@ from rest_framework import status as S
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 from app.core.logging import Logger
-from app.utils.utilities import F, get_http_response
+from app.utils.utilities import F, get_http_response, generate_random_string
+
+class ERROR_NAME:
+    BAD_REQUEST_ERROR = "BAD_REQUEST_ERROR"
+    FORBIDDEN_ERROR = "FORBIDDEN_ERROR"
+    METHOD_NOT_ALLOWED_ERROR = "METHOD_NOT_ALLOWED_ERROR"
+    NOT_FOUND_ERROR = "NOT_FOUND_ERROR"
+    UNAUTHORIZED_ERROR = "UNAUTHORIZED_ERROR"
+    UNPROCESSABLE_ERROR = "UNPROCESSABLE_ERROR"
+    TOO_MANY_REQUESTS_ERROR = "TOO_MANY_REQUESTS_ERROR"
+    INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+
+
+# Application / Business Logic Based Errors
+class CUSTOM_CODE:
+    USERNAME_TAKEN = "428e5342"
+    USERNAME_NOT_ALLOWED = "09023859"
+
+def add_rate_limit_headers(request, response, throttle):
+    """
+    Adds standard rate-limit headers to the response.
+    """
+    response['X-RateLimit-Limit'] = throttle.get_limit()
+    response['X-RateLimit-Remaining'] = max(0, throttle.get_remaining())
+
+    # Cooldown only when exhausted
+    retry = throttle.get_retry_after()
+    if retry:
+        response['Retry-After'] = retry
+
+    return response
+
+class ThrottleHeaderMiddleware(MiddlewareMixin):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        throttles = getattr(request, "throttles", None)
+        if throttles:
+            throttle = throttles[0]     # typically single
+            response = add_rate_limit_headers(request, response, throttle)
+        return response
+    
+    def dispatch(self,request):
+        response = self.get_response(request)
+        throttles = getattr(request, "throttles", None)
+        if throttles:
+            throttle = throttles[0]     # typically single
+            response = add_rate_limit_headers(request, response, throttle)
+        return response
 
 def process_library_exceptions(exc, context):
-    response = exception_handler(exc, context)
+    response = exception_handler(exc, context)    
+
     if isinstance(exc, Throttled):
         wait_time = exc.wait
         payload = {
@@ -19,55 +71,60 @@ def process_library_exceptions(exc, context):
         response = get_http_response(payload, payload[F.STATUS])
     return response
 
+
 class ExceptionHandler(MiddlewareMixin):
     def process_exception(self, request, exception):
-        payload = exception.__process_exception__()
+        payload = ExceptionSerializer.process_exception(exception)
         response = get_http_response(payload, payload[F.STATUS])
         return response
 
-def Exception404(request, *args, **kwargs):
-    payload = {
-        F.STATUS: S.HTTP_404_NOT_FOUND,
-        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
-        F.CODE: S.HTTP_404_NOT_FOUND,
-        F.MSG: F.NOT_FOUND,
-        F.ERRORS: [],
-    }
-    response = get_http_response(payload, S.HTTP_404_NOT_FOUND)
-    return response
 
-def Exception500(request, *args, **kwargs):
-    payload = {
-        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
-        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: S.HTTP_500_INTERNAL_SERVER_ERROR,
-        F.MSG: F.INTERNAL_SERVER_ERROR,
-        F.ERRORS: [],
-    }
-    response = get_http_response(payload, S.HTTP_500_INTERNAL_SERVER_ERROR)
-    return response
+class ExceptionSerializer:
 
-class ERROR_NAME:
-    BAD_REQUEST_ERROR = "BAD_REQUEST_ERROR"
-    FORBIDDEN_ERROR = "FORBIDDEN_ERROR"
-    METHOD_NOT_ALLOWED_ERROR = "METHOD_NOT_ALLOWED_ERROR"
-    NOT_FOUND_ERROR = "NOT_FOUND_ERROR"
-    UNAUTHORIZED_ERROR = "UNAUTHORIZED_ERROR"
-    UNPROCESSABLE_ERROR = "UNPROCESSABLE_ERROR"
-    INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+    @staticmethod
+    def process_exception(error):
+        print(error)
+        return {
+            F.STATUS: error.status,
+            F.NAME: error.name,
+            F.CODE: error.code,
+            F.MSG: error.msg,
+            F.ERRORS: error.errors,
+        }
 
-class CUSTOM_CODE:
-    USERNAME_TAKEN = "428e5342"
+    # to generate error and key clubbing for frontend purpose
+    @staticmethod
+    def error_generator(code_and_messages=[]):
+        group_keys_map = {
+            _[F.FIELD]: generate_random_string() for _ in code_and_messages
+        }
+        error_keys = []
+        [
+            error_keys.extend(
+                [
+                    {
+                        F.FIELD: _[F.FIELD],
+                        F.CODE: __[F.CODE],
+                        F.KEY: group_keys_map[_[F.FIELD]],
+                        F.MSG: __[F.MSG],
+                    }
+                    for __ in _[F.ERRORS]
+                ]
+            )
+            for _ in code_and_messages
+        ]
+        return error_keys
+
 
 class BaseError(Exception):
 
     def __init__(self, *args, **kwargs):
-        self.status = kwargs.pop("status", None)
-        self.code = args[0] or kwargs.pop("code", None)
-        self.name = kwargs.pop("name", None)
-        self.msg = args[1] or kwargs.pop("msg", None)
-        self.errors = args[2] or kwargs.pop("errors", [])
-        Logger.log(self)
+        self.status = kwargs.pop(F.STATUS, S.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.code = args[0] or kwargs.pop(F.CODE, S.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.name = kwargs.pop(F.NAME, ERROR_NAME.INTERNAL_SERVER_ERROR)
+        self.msg = args[1] or kwargs.pop(F.MSG, F.INTERNAL_SERVER_ERROR)
+        self.errors = args[2] or kwargs.pop(F.ERRORS, [])
+        self.logger = Logger.log(self)
         super().__init__(self.msg)
 
     def __process_exception__(self):
@@ -78,6 +135,7 @@ class BaseError(Exception):
             F.MSG: self.msg,
             F.ERRORS: self.errors,
         }
+
 
 class BadRequestError(BaseError):
 
@@ -90,6 +148,7 @@ class BadRequestError(BaseError):
         }
         super().__init__(*[code, msg, errors], **kwargs)
 
+
 class UnauthorizedError(BaseError):
     def __init__(self, code=None, msg=None, errors=None):
         kwargs = {
@@ -99,6 +158,7 @@ class UnauthorizedError(BaseError):
             F.MSG: F.UNAUTHORIZED,
         }
         super().__init__(*[code, msg, errors], **kwargs)
+
 
 class ForbiddenError(BaseError):
     def __init__(self, code=None, msg=None, errors=None):
@@ -110,6 +170,7 @@ class ForbiddenError(BaseError):
         }
         super().__init__(*[code, msg, errors], **kwargs)
 
+
 class NotFoundError(BaseError):
     def __init__(self, code=None, msg=None, errors=None):
         kwargs = {
@@ -119,6 +180,7 @@ class NotFoundError(BaseError):
             F.MSG: F.NOT_FOUND,
         }
         super().__init__(*[code, msg, errors], **kwargs)
+
 
 class MethodNotAllowedError(BaseError):
 
@@ -131,6 +193,7 @@ class MethodNotAllowedError(BaseError):
         }
         super().__init__(*[code, msg, errors], **kwargs)
 
+
 class UnprocessableError(BaseError):
     def __init__(self, code=None, msg=None, errors=None):
         kwargs = {
@@ -140,3 +203,27 @@ class UnprocessableError(BaseError):
             F.MSG: F.UNPROCESSABLE,
         }
         super().__init__(*[code, msg, errors], **kwargs)
+
+
+def Exception404(request, *args, **kwargs):
+    payload = {
+        F.STATUS: S.HTTP_404_NOT_FOUND,
+        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
+        F.CODE: S.HTTP_404_NOT_FOUND,
+        F.MSG: F.NOT_FOUND,
+        F.ERRORS: [],
+    }
+    response = get_http_response(payload, S.HTTP_404_NOT_FOUND)
+    return response
+
+
+def Exception500(request, *args, **kwargs):
+    payload = {
+        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
+        F.CODE: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.MSG: F.INTERNAL_SERVER_ERROR,
+        F.ERRORS: [],
+    }
+    response = get_http_response(payload, S.HTTP_500_INTERNAL_SERVER_ERROR)
+    return response

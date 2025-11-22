@@ -32,16 +32,11 @@ class SimpleTest(unittest.TestCase):
         client = Client()
         response = client.options("/api/v1")
         self.assertEqual(response.status_code, status.HTTP_301_MOVED_PERMANENTLY)
-
-    def test_index_error(self):
-        client = Client()
-        response = client.get("/api/v1/error/401")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
+    
     def test_index_raise_error(self):
         client = Client()
         response = client.get("/api/v1/raise-error")
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def test_index(self):
         client = Client()

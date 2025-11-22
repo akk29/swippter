@@ -1,9 +1,13 @@
 from django.views.decorators.http import condition
 from django.utils.decorators import method_decorator
-from rest_framework import status
+from rest_framework import status as S
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
-from app.core.exceptions import UnprocessableError, CUSTOM_CODE
+from app.core.exceptions import (
+    UnprocessableError,
+    CUSTOM_CODE,
+    ExceptionSerializer
+)
 from app.utils.utilities import (
     F,
     get_http_response,
@@ -21,33 +25,23 @@ class IndexView(APIView):
         name="dispatch",
     )
     def get(self, request):
-        response = get_http_response(
-            {F.VERSION: F.V1, F.METHOD: request.method}, status.HTTP_200_OK
-        )
+        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def post(self, request):
-        response = get_http_response(
-            {F.VERSION: F.V1, F.METHOD: request.method}, status.HTTP_200_OK
-        )
+        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def put(self, request):
-        response = get_http_response(
-            {F.VERSION: F.V1, F.METHOD: request.method}, status.HTTP_200_OK
-        )
+        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def patch(self, request):
-        response = get_http_response(
-            {F.VERSION: F.V1, F.METHOD: request.method}, status.HTTP_200_OK
-        )
+        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def delete(self, request):
-        response = get_http_response(
-            {F.VERSION: F.V1, F.METHOD: request.method}, status.HTTP_200_OK
-        )
+        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
 
@@ -56,12 +50,49 @@ class RaiseErrorView(APIView):
     throttle_classes = [UserRateThrottle]
 
     def get(self, request):
-        raise UnprocessableError(
-            errors=[
+        errors = ExceptionSerializer.error_generator(
+            [
                 {
                     F.FIELD: F.USERNAME,
-                    F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                    F.MSG: F.USERNAME_UNAVAILABLE,
-                }
+                    F.ERRORS: [
+                        {
+                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
+                            F.MSG: F.USERNAME_UNAVAILABLE,
+                        },
+                        {
+                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
+                            F.MSG: F.USERNAME_NOT_ALLOWED,
+                        },
+                    ],
+                },
+                {
+                    F.FIELD: F.METHOD,
+                    F.ERRORS: [
+                        {
+                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
+                            F.MSG: F.USERNAME_UNAVAILABLE,
+                        },
+                        {
+                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
+                            F.MSG: F.USERNAME_NOT_ALLOWED,
+                        },
+                    ],
+                },
+                {
+                    F.FIELD: F.APPLICATION_JSON,
+                    F.ERRORS: [
+                        {
+                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
+                            F.MSG: F.USERNAME_UNAVAILABLE,
+                        },
+                        {
+                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
+                            F.MSG: F.USERNAME_NOT_ALLOWED,
+                        },
+                    ],
+                },
             ]
+        )
+        raise UnprocessableError(
+            code=S.HTTP_422_UNPROCESSABLE_ENTITY, msg=F.UNPROCESSABLE, errors=errors
         )

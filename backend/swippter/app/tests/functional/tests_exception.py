@@ -1,4 +1,5 @@
 import unittest
+from rest_framework.exceptions import Throttled
 from app.core.exceptions import (
     BadRequestError,
     UnauthorizedError,
@@ -6,8 +7,8 @@ from app.core.exceptions import (
     NotFoundError,
     MethodNotAllowedError,
     UnprocessableError,
-    Exception500
-)
+    Exception500,
+    process_library_exceptions)
 
 
 class ExceptionTest(unittest.TestCase):
@@ -41,7 +42,7 @@ class ExceptionTest(unittest.TestCase):
             raise MethodNotAllowedError()
         except MethodNotAllowedError as e:
             self.assertEqual(MethodNotAllowedError, type(e))
-    
+
     def test_unprocessable_exception(self):
         try:
             raise UnprocessableError()
@@ -50,3 +51,6 @@ class ExceptionTest(unittest.TestCase):
 
     def test_exception_500(self):
         Exception500("")
+
+    def test_throttled(self):
+        process_library_exceptions(Throttled(wait=5), "")
