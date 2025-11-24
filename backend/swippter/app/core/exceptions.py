@@ -21,41 +21,6 @@ class CUSTOM_CODE:
     USERNAME_TAKEN = "428e5342"
     USERNAME_NOT_ALLOWED = "09023859"
 
-def add_rate_limit_headers(request, response, throttle):
-    """
-    Adds standard rate-limit headers to the response.
-    """
-    response['X-RateLimit-Limit'] = throttle.get_limit()
-    response['X-RateLimit-Remaining'] = max(0, throttle.get_remaining())
-
-    # Cooldown only when exhausted
-    retry = throttle.get_retry_after()
-    if retry:
-        response['Retry-After'] = retry
-
-    return response
-
-class ThrottleHeaderMiddleware(MiddlewareMixin):
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-
-        throttles = getattr(request, "throttles", None)
-        if throttles:
-            throttle = throttles[0]     # typically single
-            response = add_rate_limit_headers(request, response, throttle)
-        return response
-    
-    def dispatch(self,request):
-        response = self.get_response(request)
-        throttles = getattr(request, "throttles", None)
-        if throttles:
-            throttle = throttles[0]     # typically single
-            response = add_rate_limit_headers(request, response, throttle)
-        return response
-
 def process_library_exceptions(exc, context):
     response = exception_handler(exc, context)    
 
@@ -124,7 +89,7 @@ class BaseError(Exception):
         self.name = kwargs.pop(F.NAME, ERROR_NAME.INTERNAL_SERVER_ERROR)
         self.msg = args[1] or kwargs.pop(F.MSG, F.INTERNAL_SERVER_ERROR)
         self.errors = args[2] or kwargs.pop(F.ERRORS, [])
-        self.logger = Logger.log(self)
+        self.logger = Logger.log_exception(self)
         super().__init__(self.msg)
 
     def __process_exception__(self):

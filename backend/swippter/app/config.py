@@ -1,12 +1,46 @@
+import redis
 from django.apps import AppConfig
 from app.core.logging import Logger
+from swippter.settings import REDIS
+from app.utils.utilities import F
 
-def setup_logger():
-    Logger.setup()    
+class Starter:
+
+    def __init__(self):
+        self.logger = None
+        self.redis = None
+
+    def setup_logger(self):
+        logger = Logger.setup()
+        self.logger = logger
+
+    def setup_redis(self):
+        try:
+            r = redis.Redis.from_url(REDIS)
+            response = r.ping()
+            if response:
+                self.logger.info(F.REDIS_CONNECTION_SUCCESS)
+            else:
+                self.logger.fatal(F.REDIS_CANNOT_CONNECTION)
+                raise SystemExit()
+            r.set(F.MY_KEY, F.HELLO_REDIS)
+            value = r.get(F.MY_KEY)
+            self.logger.info(
+                f"{F.RETRIEVED_VALUE} {value.decode(F.UTF8)}"
+            )  # Decode bytes to string
+        except redis.exceptions.ConnectionError as e:
+            self.logger.critical(f"{F.REDIS_CONNECTION_ERROR} {e}")
+            raise SystemExit()
+        except Exception as e:
+            self.logger.critical(f"{F.UNEXPECTED_ERROR_REDIS} {e}")
+            raise SystemExit()
+
 
 class AppConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app.config'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "app.config"
 
     def ready(self):
-        setup_logger()
+        starter = Starter()
+        starter.setup_logger()
+        starter.setup_redis()
