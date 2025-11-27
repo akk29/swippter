@@ -1,3 +1,4 @@
+import sys
 import redis
 from django.apps import AppConfig
 from app.core.logging import Logger
@@ -22,7 +23,7 @@ class Starter:
                 self.logger.info(F.REDIS_CONNECTION_SUCCESS)
             else:
                 self.logger.fatal(F.REDIS_CANNOT_CONNECTION)
-                raise SystemExit()
+                sys.exit()
             r.set(F.MY_KEY, F.HELLO_REDIS)
             value = r.get(F.MY_KEY)
             self.logger.info(
@@ -30,11 +31,10 @@ class Starter:
             )  # Decode bytes to string
         except redis.exceptions.ConnectionError as e:
             self.logger.critical(f"{F.REDIS_CONNECTION_ERROR} {e}")
-            raise SystemExit()
+            sys.exit()
         except Exception as e:
             self.logger.critical(f"{F.UNEXPECTED_ERROR_REDIS} {e}")
-            raise SystemExit()
-
+            sys.exit()
 
 class AppConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
