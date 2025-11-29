@@ -24,6 +24,14 @@ class FILLER:
     UTF8 = "utf-8"
     Z = "Z"
 
+    # Colors
+    GREEN = "\x1b[1;32m"
+    GREY = "\x1b[38;20m"
+    YELLOW = "\x1b[33;20m"
+    RED = "\x1b[31;20m"
+    BOLD_RED = "\x1b[31;1m"
+    RESET = "\x1b[0m"
+
     # Errors msgs
     BAD_REQUEST = "Bad Request"
     METHOD_NOT_ALLOWED = "Method not allowed"
