@@ -108,6 +108,17 @@ if DB == "sqllite3":
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+elif(DB == "mysql"):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('DATABASE'),
+            'USER': config('DBUSER'),
+            'PASSWORD': config('DBPASSWORD'),
+            'HOST': config('DBHOST'),
+            'PORT': config('DBPORT'),
+        }
+    }
 
 THROTTLE_RATE = config("THROTTLE_RATE")
 

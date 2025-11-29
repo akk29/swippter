@@ -11,12 +11,10 @@ class BaseDAO:
 
     @classmethod
     def get_instance(cls):
-
         if cls not in cls._locks:
             with cls._global_lock:
                 if cls not in cls._locks:
                     cls._locks[cls] = threading.Lock()
-
         if cls not in cls._instances:
             with cls._locks[cls]:
                 if cls not in cls._instances:
@@ -32,5 +30,5 @@ class BaseDAO:
     def delete(self,*args,**kwargs):
         pass
 
-    def fetch(self):
+    def fetch(self,*args,**kwargs):
         pass
