@@ -40,5 +40,18 @@ services:
             context: ../../            
         expose:
             - 6379        
+    mysql:
+        restart: always
+        image: mysql
+        ports:
+          - 3306:3306        
+        env_file: "../../backend/swippter/.env"
+        environment:
+            - MYSQL_DATABASE=${DATABASE}
+            - MYSQL_ROOT_PASSWORD=${DBPASSWORD}
+            - MYSQL_USER=${DBUSER}
+            - MYSQL_PASSWORD=${DBPASSWORD}
+            - MYSQL_ALLOW_EMPTY_PASSWORD=YES
+            - MYSQL_RANDOM_ROOT_PASSWORD=${DBPASSWORD}
 volumes:
     static_volume: {}

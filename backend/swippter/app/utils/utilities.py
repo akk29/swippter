@@ -16,6 +16,7 @@ class FILLER:
     METHOD = "method"
     MESSAGE = "message"
     MSG = "msg"
+    MYSQL = "mysql"
     NAME = "name"
     STATUS = "status"
     USERNAME = "username"
