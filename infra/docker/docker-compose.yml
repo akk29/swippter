@@ -44,10 +44,13 @@ services:
         restart: always
         image: mysql
         ports:
-          - 3306:3306        
-        env_file: "../../backend/swippter/.env"
+          - 3306:3306     
+        build:
+            context: ../../   
+        env_file: 
+            - ../../backend/swippter/.env
         environment:
-            - MYSQL_DATABASE=${DATABASE}
+            # - MYSQL_DATABASE=${DATABASE}
             - MYSQL_ROOT_PASSWORD=${DBPASSWORD}
             - MYSQL_USER=${DBUSER}
             - MYSQL_PASSWORD=${DBPASSWORD}
