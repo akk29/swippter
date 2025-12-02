@@ -1,0 +1,8 @@
+#!/bin/sh
+python manage.py makemigrations app
+python manage.py migrate app
+python manage.py makemigrations
+python manage.py migrate
+python manage.py create_admin
+python manage.py collectstatic --no-input
+gunicorn swippter.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4
