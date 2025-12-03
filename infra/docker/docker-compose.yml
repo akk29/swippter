@@ -1,7 +1,8 @@
 services:
     nginx:
-        restart: always
         image: nginx:1.23-alpine
+        container_name: nginx
+        restart: always
         ports:
             - 8000:80
         build:
@@ -20,6 +21,7 @@ services:
             - static_volume:/app/swippter/static        
     server:
         image: swippter-backend-server:latest
+        container_name: swippter-backend-server
         restart: unless-stopped
         build:
             context: ../../
@@ -36,8 +38,9 @@ services:
             mysql:
                 condition: service_healthy
     redis:
-        restart: always
         image: redis
+        container_name: redis
+        restart: always
         ports:
             - 6379:6379
         build:
@@ -45,8 +48,9 @@ services:
         expose:
             - 6379        
     mysql:
-        restart: always
         image: mysql
+        container_name: mysql
+        restart: always
         ports:
           - 3306:3306     
         build:
