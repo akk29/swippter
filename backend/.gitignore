@@ -121,3 +121,5 @@ static
 .venv
 .venv-py3-1
 .venv-py3
+
+static-files
