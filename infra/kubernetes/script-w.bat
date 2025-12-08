@@ -15,3 +15,6 @@ kubectl apply -f nginx/service.yaml
 
 kubectl apply -f server/deployment.yaml
 kubectl apply -f server/service.yaml
+
+kubectl apply -f rabbitmq/deployment.yaml
+kubectl apply -f rabbitmq/service.yaml

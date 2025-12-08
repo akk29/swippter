@@ -14,6 +14,7 @@ class Starter:
     def setup_logger(self):
         logger = Logger.setup()
         self.logger = logger
+        self.logger.info('logger setup complete')
 
     def setup_redis(self):
         try:

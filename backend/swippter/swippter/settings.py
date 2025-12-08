@@ -25,6 +25,10 @@ CORS_ALLOW_METHODS = [*default_methods]
 ROOT_URLCONF = "swippter.urls"
 WSGI_APPLICATION = "swippter.wsgi.application"
 
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

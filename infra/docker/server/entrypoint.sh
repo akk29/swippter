@@ -1,4 +1,5 @@
 #!/bin/sh
+celery -A swippter.celery worker --pool=solo --detach --loglevel=info
 python manage.py makemigrations app
 python manage.py migrate app
 python manage.py makemigrations
