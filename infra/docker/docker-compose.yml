@@ -25,7 +25,7 @@ services:
         restart: unless-stopped
         build:
             context: ../../
-            dockerfile: ./infra/docker/backend/Dockerfile
+            dockerfile: ./infra/docker/server/Dockerfile
         volumes:
             - static_volume:/app/swippter/static-files
         expose:

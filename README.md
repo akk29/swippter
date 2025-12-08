@@ -39,10 +39,10 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+┌─────────────┐       ┌─────────────┐      ┌─────────────┐
 │   Frontend  │─────▶│   Backend   │─────▶│  Database   │
-│   (React)   │      │  (Python)   │      │ (PostgreSQL)│
-└─────────────┘      └─────────────┘      └─────────────┘
+│   (React)   │       │  (Python)   │      │ (PostgreSQL)│
+└─────────────┘       └─────────────┘      └─────────────┘
                             │
                             ▼
                      ┌─────────────┐
@@ -68,8 +68,6 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 **Infrastructure:**
 - Docker & Docker Compose
 - Kubernetes
-- Nginx (reverse proxy)
-- AWS / GCP / Azure
 
 ## 📦 Prerequisites
 
@@ -81,7 +79,6 @@ Before you begin, ensure you have the following installed:
 - **Node.js** (16+) and npm/yarn
 - **Git**
 - **kubectl** (for Kubernetes deployment)
-- **Terraform** (optional, for infrastructure)
 
 ### System Requirements
 
@@ -93,46 +90,38 @@ Before you begin, ensure you have the following installed:
 
 ```
 swippter/
-├── backend/                 # Backend application
-│   ├── api/                # API routes
-│   ├── models/             # Database models
-│   ├── services/           # Business logic
-│   ├── middleware/         # Middleware functions
-│   ├── config/             # Configuration files
-│   ├── tests/              # Backend tests
-│   ├── requirements.txt    # Python dependencies
-│   ├── Dockerfile          # Backend Docker image
-│   └── manage.py           # Management script
-│
-├── frontend/               # Frontend application
-│   ├── public/            # Static assets
-│   ├── src/               # Source code
-│   │   ├── components/    # React components
-│   │   ├── pages/         # Page components
-│   │   ├── services/      # API services
-│   │   ├── utils/         # Utility functions
-│   │   └── App.js         # Main app component
-│   ├── package.json       # Node dependencies
-│   ├── Dockerfile         # Frontend Docker image
-│   └── nginx.conf         # Nginx configuration
-│
-├── infra/                  # Infrastructure as Code
-│   ├── docker/            # Docker configurations
-│   │   └── docker-compose.yml
-│   ├── kubernetes/        # K8s manifests
-│   │   ├── deployments/
-│   │   ├── services/
-│   │   ├── configmaps/
-│   │   └── secrets/
-│   ├── terraform/         # Terraform configs
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   ├── scripts/           # Deployment scripts
-│   └── helm/              # Helm charts
-│
-├── .github/               # GitHub workflows
-├── docs/                  # Documentation
++---backend
+|   +---.venv
+|   |   \---Scripts
+|   +---swippter
+|       +---app
+|       |   +---core                    # backend core code
+|       |   +---management              # application run time commands
+|       |   |   +---commands
+|       |   +---migrations
+|       |   +---models                  # database models
+|       |   |   +---patterns            # patterns on database objects
+|       |   +---routes                  # application routes
+|       |   +---services                # backend services / business logic
+|       |   +---tests                   # test suite
+|       |   |   +---functional
+|       |   +---utils                   # utilities functions
+|       |   +---views                   # API views
+|       +---swippter
++---frontend
++---infra
+    +---config                          # config for services
+    +---docker                                  
+    |   +---dependencies                # backend dependencies docker file
+    |   +---server                      # server docker file
+    +---env                             # env file for services
+    +---kubernetes
+    |   +---mysql                       # mysql kubernetes file
+    |   +---nginx                       # nginx kubernetes file
+    |   +---rabbitmq                    # rabbitmq kubernetes file
+    |   +---redis                       # redis kubernetes file
+    |   +---server                      # server kubernetes file
+    +---manual
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -157,57 +146,51 @@ Create environment files for backend and frontend:
 
 ```bash
 # Create backend environment file
-cd backend
+cd backend/swippter
 cp .env.example .env
 ```
 
 Edit `.env` with your configuration:
 
 ```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/swippter_db
-DB_HOST=postgres
-DB_PORT=5432
-DB_NAME=swippter_db
-DB_USER=swippter_user
-DB_PASSWORD=your_secure_password
+# Database settings
+DB="mysql"
+DATABASE="swippterdb"
+DBUSER="dbuser"
+DBPASSWORD="rootpassword"
+DBHOST="127.0.0.1"
+DBPORT="3306"
 
-# Redis
-REDIS_URL=redis://redis:6379/0
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-# Application
-SECRET_KEY=your_super_secret_key_change_this
 DEBUG=False
-ALLOWED_HOSTS=localhost,127.0.0.1
+FRONT_URL='http://localhost:3000'
 
-# JWT
-JWT_SECRET_KEY=your_jwt_secret_key
-JWT_ALGORITHM=HS256
-JWT_EXPIRATION=3600
+REDIS="redis://127.0.0.1:6379"
 
-# Email (SMTP)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
-EMAIL_USE_TLS=True
+SECRET_KEY='django-insecure-15+$3k4=e3b+bmp!wca8_-_n)#w9-yp3329!2+u81i!tzw!efo'
+THROTTLE_RATE='2000/min'
+ADMIN_USERNAME="a@a.com"
+ADMIN_EMAIL="a@a.com"
+ADMIN_PASSWORD="test@1234"
 
-# Payment Gateway (Stripe/PayPal)
-STRIPE_PUBLIC_KEY=pk_test_your_key
-STRIPE_SECRET_KEY=sk_test_your_key
+CELERY_BROKER_URL='amqp://guest:guest@localhost:5672/'
+CELERY_TASK_SERIALIZER='json'
 
-# AWS S3 (for file storage)
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_STORAGE_BUCKET_NAME=swippter-media
-AWS_S3_REGION_NAME=us-east-1
+```
 
-# Application Settings
-PORT=8000
-WORKERS=4
-LOG_LEVEL=info
+```bash
+# Create backend environment file
+cd infra/env
+cp .mysql.env.example .mysql.env
+```
+
+Edit `.mysql.env` with your configuration:
+
+```env
+MYSQL_DATABASE=swippterdb
+MYSQL_ROOT_PASSWORD=rootpassword
+MYSQL_USER=dbuser
+MYSQL_PASSWORD=rootpassword
+MYSQL_ALLOW_EMPTY_PASSWORD=YES
 ```
 
 #### Frontend Environment (.env)
@@ -225,14 +208,6 @@ Edit `.env`:
 REACT_APP_API_URL=http://localhost:8000/api
 REACT_APP_WS_URL=ws://localhost:8000/ws
 
-# Stripe
-REACT_APP_STRIPE_PUBLIC_KEY=pk_test_your_key
-
-# Analytics
-REACT_APP_GA_TRACKING_ID=UA-XXXXXXXXX-X
-
-# Environment
-REACT_APP_ENV=development
 ```
 
 ### 3. Install Dependencies
@@ -242,23 +217,48 @@ REACT_APP_ENV=development
 ```bash
 cd backend
 
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Linux/Mac:
-source venv/bin/activate
-# On Windows:
-venv\Scripts\activate
-
 # Install dependencies
-pip install -r requirements.txt
+uv sync
+
+# Go to project directory
+cd swippter
 
 # Run database migrations
+python manage.py makemigrations app
+python manage.py makemigrations
+python manage.py migrate app
 python manage.py migrate
 
+2025-12-08 19:52:39,803:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1597121486128
+2025-12-08 19:52:39,803:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+2025-12-08 19:52:39,810:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
+2025-12-08 19:52:39,814:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying sessions.0001_initial... OK
+
 # Create superuser (admin)
-python manage.py createsuperuser
+python manage.py create_admin
+username: a@a.com
+password: test@1234
 ```
 
 #### Frontend
@@ -279,14 +279,16 @@ yarn install
 This is the easiest way to run the entire application stack.
 
 ```bash
+# Before running make sure to make .env and .mysql.env file in your local directory
+
 # From the project root directory
 cd infra/docker
 
 # Build and start all services
-docker-compose up -d --build
+docker compose build dependencies
 
-# View logs
-docker-compose logs -f
+# create services
+docker compose up nginx server redis mysql rabbitmq --force-recreate
 
 # Check running services
 docker-compose ps
@@ -299,11 +301,10 @@ docker-compose down -v
 ```
 
 **Services will be available at:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-- Admin Panel: http://localhost:8000/admin
-- PostgreSQL: localhost:5432
+- Backend API: http://localhost
+- API Docs: http://localhost/api/schema/swagger-ui/
+- Admin Panel: http://localhost/admin
+- MySQL: localhost:3306
 - Redis: localhost:6379
 
 ### Option 2: Local Development
@@ -314,18 +315,34 @@ docker-compose down -v
 cd backend
 
 # Activate virtual environment
-source venv/bin/activate  # Linux/Mac
+source .venv/bin/activate  # Linux/Mac
 # or
-venv\Scripts\activate     # Windows
+.venv\Scripts\activate     # Windows
 
-# Run development server
-python manage.py runserver 0.0.0.0:8000
+# Run Development server (before running make sure redis, rabbitmq and mysql are running)
+cd infra/docker
+docker compose up redis mysql rabbitmq
+python manage.py runserver
 
-# Or with gunicorn (production-like)
-gunicorn app.main:app --bind 0.0.0.0:8000 --workers 4
+2025-12-08 19:53:10,292:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1732918697264
+2025-12-08 19:53:10,293:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+2025-12-08 19:53:10,310:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
+2025-12-08 19:53:10,317:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
+2025-12-08 19:53:10,785:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1677889953072
+2025-12-08 19:53:10,785:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+2025-12-08 19:53:10,796:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
+2025-12-08 19:53:10,799:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
+Performing system checks...
 
-# Or with uvicorn (for FastAPI)
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+System check identified no issues (0 silenced).
+December 08, 2025 - 19:53:10
+Django version 5.2.8, using settings 'swippter.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
+
 ```
 
 #### Start Frontend
@@ -383,27 +400,44 @@ docker run -d -p 3000:80 --name swippter-frontend swippter-frontend:latest
 ### Docker Compose Commands
 
 ```bash
+
+# Setting up env for backend before deployment
+EDIT /backend/swippter/.env
+# Database settings
+DB="mysql"
+DATABASE="swippterdb"
+DBUSER="dbuser"
+DBPASSWORD="rootpassword"
+DBHOST="mysql" # point to container
+DBPORT="3306"
+
+DEBUG=False
+FRONT_URL='http://localhost:3000'
+
+REDIS="redis://redis:6379" # point to container
+
+SECRET_KEY='django-insecure-15+$3k4=e3b+bmp!wca8_-_n)#w9-yp3329!2+u81i!tzw!efo'
+THROTTLE_RATE='2000/min'
+ADMIN_USERNAME="a@a.com"
+ADMIN_EMAIL="a@a.com"
+ADMIN_PASSWORD="test@1234"
+
+CELERY_BROKER_URL='amqp://guest:guest@rabbimq:5672/' # point to container
+CELERY_TASK_SERIALIZER='json'
+
+
+```
+
+
+```bash
 cd infra/docker
 
-# Start services
-docker-compose up -d
+# build Dependencies
+docker compose build dependencies
 
-# Scale specific service
-docker-compose up -d --scale backend=3
+# Start Services
+docker compose up nginx server redis mysql rabbitmq --force-recreate
 
-# View service logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-
-# Execute commands in container
-docker-compose exec backend python manage.py shell
-docker-compose exec postgres psql -U swippter_user -d swippter_db
-
-# Rebuild specific service
-docker-compose up -d --build backend
-
-# Health check
-docker-compose ps
 ```
 
 ### Kubernetes Deployment
@@ -424,94 +458,43 @@ cd infra/kubernetes
 # Create namespace
 kubectl create namespace swippter
 
-# Apply ConfigMaps and Secrets
-kubectl apply -f configmaps/ -n swippter
-kubectl apply -f secrets/ -n swippter
+# Config for nginx deployment
+kubectl create configmap nginx-config --from-file=default.conf=../config/default.conf
 
-# Deploy database (PostgreSQL)
-kubectl apply -f deployments/postgres-deployment.yaml -n swippter
-kubectl apply -f services/postgres-service.yaml -n swippter
+# Create static storage
+kubectl apply -f static-pvc.yaml
 
-# Deploy Redis
-kubectl apply -f deployments/redis-deployment.yaml -n swippter
-kubectl apply -f services/redis-service.yaml -n swippter
+# ENV config for mysql service
+kubectl create secret generic mysql-secret --from-env-file=../env/.mysql.env
 
-# Deploy backend
-kubectl apply -f deployments/backend-deployment.yaml -n swippter
-kubectl apply -f services/backend-service.yaml -n swippter
+# Deploy mysql
+kubectl apply -f mysql/pvc.yaml
+kubectl apply -f mysql/deployment.yaml
+kubectl apply -f mysql/service.yaml
 
-# Deploy frontend
-kubectl apply -f deployments/frontend-deployment.yaml -n swippter
-kubectl apply -f services/frontend-service.yaml -n swippter
+# Deploy redis
+kubectl apply -f redis/deployment.yaml
+kubectl apply -f redis/service.yaml
 
-# Apply Ingress
-kubectl apply -f ingress/ingress.yaml -n swippter
+# Deploy nginx
+kubectl apply -f nginx/deployment.yaml
+kubectl apply -f nginx/service.yaml
 
-# Check deployment status
-kubectl get pods -n swippter
-kubectl get services -n swippter
-kubectl get ingress -n swippter
+# Deploy server
+kubectl apply -f server/deployment.yaml
+kubectl apply -f server/service.yaml
 
-# View logs
-kubectl logs -f deployment/backend -n swippter
-kubectl logs -f deployment/frontend -n swippter
+# Deploy rabbitmq
+kubectl apply -f rabbitmq/deployment.yaml
+kubectl apply -f rabbitmq/service.yaml
 
-# Scale deployment
-kubectl scale deployment backend --replicas=5 -n swippter
+############### Automated Script for above commands ######################
 
-# Delete deployment
-kubectl delete namespace swippter
-```
+# Windows
 
-#### Using Helm
+start-w.bat # for setup
+clean-w.bat # for clean up
 
-```bash
-cd infra/helm
-
-# Install Helm chart
-helm install swippter ./swippter-chart -n swippter --create-namespace
-
-# Upgrade release
-helm upgrade swippter ./swippter-chart -n swippter
-
-# Rollback
-helm rollback swippter 1 -n swippter
-
-# Uninstall
-helm uninstall swippter -n swippter
-
-# List releases
-helm list -n swippter
-```
-
-### Terraform (Infrastructure as Code)
-
-```bash
-cd infra/terraform
-
-# Initialize Terraform
-terraform init
-
-# Plan infrastructure changes
-terraform plan -out=tfplan
-
-# Apply changes
-terraform apply tfplan
-
-# Or apply directly
-terraform apply -auto-approve
-
-# Show current state
-terraform show
-
-# Destroy infrastructure
-terraform destroy -auto-approve
-
-# Format Terraform files
-terraform fmt
-
-# Validate configuration
-terraform validate
 ```
 
 ### Monitoring & Logging
@@ -537,17 +520,17 @@ docker-compose exec redis redis-cli INFO
 
 Once the backend is running, access the interactive API documentation:
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
+- **Swagger UI**: http://localhost/docs
+- **ReDoc**: http://localhost/redoc
+- **OpenAPI JSON**: http://localhost/openapi.json
 
 ### Sample API Endpoints
 
 ```bash
-# Health check
-curl http://localhost:8000/health
+# Health check / Check API
+curl http://localhost:8000/api/v1/
 
-# Get products
+# Browse products
 curl http://localhost:8000/api/v1/products
 
 # Get product by ID
@@ -642,23 +625,9 @@ pre-commit run --all-files
 ```bash
 cd backend
 
-# Run all tests
-pytest
+# Run all tests with coverage
+coverage run manage.py test
 
-# Run with coverage
-pytest --cov=app --cov-report=html
-
-# Run specific test file
-pytest tests/test_products.py
-
-# Run specific test
-pytest tests/test_products.py::test_get_product
-
-# Run with verbose output
-pytest -v
-
-# Run in parallel
-pytest -n auto
 ```
 
 ### Frontend Tests
@@ -696,74 +665,36 @@ pytest test_api_integration.py
 
 ### Common Issues
 
+#### Redis not running
+
+```bash
+2025-12-08 19:34:07,229:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 2890361975248
+2025-12-08 19:34:07,229:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+2025-12-08 19:34:14,489:app.core.logging:CRITICAL - config:config.py:setup_redis:34 --- Redis connection error: Error 11001 connecting to redis:6379. getaddrinfo failed.
+```
+
+```bash
+# Run redis 
+docker compose run redis
+```
+
+
 #### Database Connection Error
 
 ```bash
-# Check if PostgreSQL is running
-docker-compose ps postgres
+# Run database
 
-# Check logs
-docker-compose logs postgres
-
-# Restart PostgreSQL
-docker-compose restart postgres
-
-# Connect to PostgreSQL
-docker-compose exec postgres psql -U swippter_user -d swippter_db
+docker compose run mysql
 ```
 
-#### Port Already in Use
+#### Rabbitmq Connection Error
 
 ```bash
-# Find process using port
-lsof -i :8000  # macOS/Linux
-netstat -ano | findstr :8000  # Windows
+# Run Rabbitmq
 
-# Kill process
-kill -9 PID  # macOS/Linux
-taskkill /PID pid /F  # Windows
+docker compose run mysql
 ```
 
-#### Container Won't Start
-
-```bash
-# Check container status
-docker-compose ps
-
-# View container logs
-docker-compose logs backend
-
-# Remove and rebuild
-docker-compose down
-docker-compose up -d --build --force-recreate
-```
-
-#### Permission Denied Errors
-
-```bash
-# Fix file permissions (Linux/Mac)
-sudo chown -R $USER:$USER .
-
-# Docker permission issues
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-### Clear Cache and Data
-
-```bash
-# Clear Docker cache
-docker system prune -a --volumes
-
-# Clear Python cache
-find . -type d -name "__pycache__" -exec rm -r {} +
-find . -type f -name "*.pyc" -delete
-
-# Clear node modules
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-```
 
 ## 🤝 Contributing
 
@@ -788,16 +719,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📫 Email: support@swippter.com
 - 🐛 Issues: [GitHub Issues](https://github.com/akk29/swippter/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/akk29/swippter/discussions)
 
 ## 🔗 Links
 
-- [Website](https://swippter.com)
-- [Documentation](https://docs.swippter.com)
-- [API Reference](https://api.swippter.com/docs)
-- [Blog](https://blog.swippter.com)
+- [Website](https://www.github.com/akk29/swippter)
+- [Documentation](https://www.github.com/akk29/swippter)
+- [API Reference](https://www.github.com/akk29/swippter)
 
 ---
 
