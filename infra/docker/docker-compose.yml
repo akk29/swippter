@@ -10,15 +10,15 @@ services:
         expose:
             - 80
         volumes:
-            - ./backend/nginx/default.conf:/etc/nginx/conf.d/default.conf
-            - static_volume:/app/swippter/static
+            - ../config/default.conf:/etc/nginx/conf.d/default.conf
+            - static_volume:/app/swippter/static-files
     dependencies:
         image: swippter-backend-dependencies:latest
         build:
             context: ../../
-            dockerfile: ./infra/docker/backend/dependencies/Dockerfile
+            dockerfile: ./infra/docker/dependencies/Dockerfile
         volumes:
-            - static_volume:/app/swippter/static        
+            - static_volume:/app/swippter/static-files        
     server:
         image: swippter-backend-server:latest
         container_name: swippter-backend-server
@@ -27,7 +27,7 @@ services:
             context: ../../
             dockerfile: ./infra/docker/backend/Dockerfile
         volumes:
-            - static_volume:/app/swippter/static
+            - static_volume:/app/swippter/static-files
         expose:
             - 8000   
         depends_on:
@@ -48,7 +48,7 @@ services:
         expose:
             - 6379        
     mysql:
-        image: mysql
+        image: mysql:8.0
         container_name: mysql
         restart: always
         ports:
@@ -56,7 +56,7 @@ services:
         build:
             context: ../../   
         env_file: 
-            - ./backend/mysql/.env
+            - ../env/.mysql.env
         healthcheck:
             test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
             interval: 5s

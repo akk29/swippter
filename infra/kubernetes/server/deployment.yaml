@@ -12,6 +12,18 @@ spec:
       labels:
         app: server
     spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          until nc -z mysql 3306; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+          echo "MySQL is available!"
       containers:
         - name: server
           image: akk29/public:swippter-backend-server
@@ -26,7 +38,7 @@ spec:
               memory: "256Mi"
           volumeMounts:
             - name: static-volume
-              mountPath: /app/static
+              mountPath: /app/swippter/static-files
       volumes:
         - name: static-volume
           persistentVolumeClaim:
