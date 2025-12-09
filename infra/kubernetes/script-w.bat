@@ -10,8 +10,8 @@ kubectl apply -f mysql/service.yaml
 kubectl apply -f redis/deployment.yaml
 kubectl apply -f redis/service.yaml
 
-kubectl apply -f nginx/deployment.yaml
-kubectl apply -f nginx/service.yaml
+kubectl apply -f frontend/deployment.yaml
+kubectl apply -f frontend/service.yaml
 
 kubectl apply -f server/deployment.yaml
 kubectl apply -f server/service.yaml
