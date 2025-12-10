@@ -183,3 +183,20 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", cast=bool)
+
+# CUSTOM AUTHENTICATION
+  
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'app.core.backend.custom_authentication.CustomAuthenticationBackend',
+]
+
+AUTH_USER_MODEL = 'app.User'
+
+# EMAIL INTEGRATION
+TRIGGER_MAIL_SWITCH = config('TRIGGER_MAIL_SWITCH',cast=bool)
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = config('EMAIL_PORT')

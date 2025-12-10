@@ -3,7 +3,13 @@
 > An ecommerce platform for fast fashion
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/Python-93.3%25-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.13-blue)](https://www.python.org/)
+[![Typescript](https://img.shields.io/badge/Typescript-3.13-green)](https://www.python.org/)
+[![Redis](https://img.shields.io/badge/Redis-3.13-green)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-3.13-green)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-3.13-green)](https://www.python.org/)
+[![React](https://img.shields.io/badge/React-3.13-green)](https://www.python.org/)
+
 
 ## 📋 Table of Contents
 
@@ -38,32 +44,25 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 
 ## 🏗️ Architecture
 
-```
-┌─────────────┐       ┌─────────────┐      ┌─────────────┐
-│   Frontend  │─────▶│   Backend   │─────▶│  Database   │
-│   (React)   │       │  (Python)   │      │ (PostgreSQL)│
-└─────────────┘       └─────────────┘      └─────────────┘
-                            │
-                            ▼
-                     ┌─────────────┐
-                     │   Redis     │
-                     │   Cache     │
-                     └─────────────┘
-```
+![Swippter Application Architecture](backend/docs/swippter-design.svg)
 
 ### Technology Stack
 
 **Backend:**
 - Python 3.x
-- FastAPI / Django / Flask (framework)
-- PostgreSQL (database)
+- Django + DRF
+- MySQL (database)
 - Redis (caching)
-- Celery (task queue)
+- Celery/RabbitMQ (task queue)
+- Swagger / Swagger UI - API Documentation
+- Open API - API Documentation
+- UV - Package Manager
 
 **Frontend:**
-- React.js / Next.js
+- React.js
 - TypeScript
 - Tailwind CSS / Material-UI
+- Bun
 
 **Infrastructure:**
 - Docker & Docker Compose

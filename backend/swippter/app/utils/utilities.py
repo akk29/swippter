@@ -1,4 +1,5 @@
 import json
+import bcrypt
 import hashlib
 import random
 from datetime import datetime
@@ -8,17 +9,29 @@ from rest_framework import status as S
 class FILLER:
     # Common or one time / non-context
     A = "A"
+    ADMIN = "admin"
     APPLICATION_JSON = "application/json"
     CODE = "code"
     ERRORS = "errors"
+    EMAIL = "email"
     FIELD = "field"
+    FIRST_NAME = "first_name"
+    IS_SUPERUSER = "is_superuser"
+    IS_STAFF = "is_staff"
+    IS_VERIFIED = "is_verified"
     KEY = "key"
+    LAST_NAME = 'last_name'
     METHOD = "method"
     MESSAGE = "message"
     MSG = "msg"
     MYSQL = "mysql"
     NAME = "name"
+    RECIEVER = "reciever"
+    ROLE = "role"
+    SALT = 'salt'
+    SENDER = "sender"
     STATUS = "status"
+    SUBJECT = "subject"
     USERNAME = "username"
     VERSION = "version"
     V1 = "v1"
@@ -46,6 +59,7 @@ class FILLER:
     # Custom Error msgs / Business Logic
     USERNAME_UNAVAILABLE = "Username unavailable"
     USERNAME_NOT_ALLOWED = "Username not allowed"
+    EMAIL_MUST_BE_SET = "The given email must be set"
 
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
@@ -79,3 +93,9 @@ def my_last_modified_func(request, **kwargs):
 
 def generate_random_string():
     return "".join([chr(random.randint(ord(F.A), ord(F.Z))) for _ in range(5)])
+
+def generate_salt():
+    return bcrypt.gensalt()
+
+def generate_password_hash(password,salt):    
+    return bcrypt.hashpw(password.encode(F.UTF8), salt)

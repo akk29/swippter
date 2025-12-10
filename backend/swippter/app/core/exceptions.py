@@ -18,6 +18,7 @@ class ERROR_NAME:
 
 # Application / Business Logic Based Errors
 class CUSTOM_CODE:
+    EMAIL_MUST_BE_SET = "2886623e"
     USERNAME_TAKEN = "428e5342"
     USERNAME_NOT_ALLOWED = "09023859"
 

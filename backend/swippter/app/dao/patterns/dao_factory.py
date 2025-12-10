@@ -1,3 +1,5 @@
+from app.dao.user_dao import UserDAO
+
 class DAOFactory():
 
     @staticmethod

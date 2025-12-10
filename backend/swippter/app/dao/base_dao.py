@@ -24,7 +24,7 @@ class BaseDAO:
     def create(self,*args,**kwargs):
         pass
 
-    def update(self,*agrs,**kwargs):
+    def update(self,*args,**kwargs):
         pass
 
     def delete(self,*args,**kwargs):
