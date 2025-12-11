@@ -48,7 +48,7 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 
 ### Design Document
 
-[Swippter Design Document](https://iron-saga-b0b.notion.site/swippter-2a901d4de5ee804f9bccd7441898614a)
+[Swippter Design Document](https://www.notion.so/Swippter-Design-Document-2a901d4de5ee804f9bccd7441898614a)
 
 ![Swippter Application Architecture](docs/backend/swippter-design.svg)
 
@@ -331,7 +331,7 @@ source .venv/bin/activate  # Linux/Mac
 
 # Run Development server (before running make sure redis, rabbitmq and mysql are running)
 cd infra/docker
-docker compose up redis mysql rabbitmq
+docker compose up redis mysql rabbitmq --force-recreate
 python manage.py runserver
 
 2025-12-08 19:53:10,292:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1732918697264
@@ -355,24 +355,18 @@ For more information on production servers see: https://docs.djangoproject.com/e
 
 ```
 
-#### Start Frontend
+#### Start Frontend - IN_PROGRESS
 
 ```bash
 cd frontend
 
 # Development server
-npm start
-# or
-yarn start
+bun run dev
 
 # Build for production
-npm run build
-# or
-yarn build
+bun run build
 
 # Serve production build
-npm run serve
-# or
 serve -s build -l 3000
 ```
 
@@ -382,27 +376,19 @@ serve -s build -l 3000
 cd backend
 
 # Start Celery worker
-celery -A app.celery worker --loglevel=info
-
-# Start Celery beat (for scheduled tasks)
-celery -A app.celery beat --loglevel=info
+celery -A swippter.celery worker --pool=solo --detach --loglevel=info
 
 # Start Flower (Celery monitoring)
-celery -A app.celery flower --port=5555
+celery -A swippter.celery flower --port=5555
 ```
 
 ### Option 3: Individual Docker Containers
 
 ```bash
-# Build backend image
-cd backend
-docker build -t swippter-backend:latest .
-docker run -d -p 8000:8000 --name swippter-backend swippter-backend:latest
-
-# Build frontend image
-cd frontend
-docker build -t swippter-frontend:latest .
-docker run -d -p 3000:80 --name swippter-frontend swippter-frontend:latest
+# Build dependencies
+cd infra/docker
+docker compose build dependencies
+docker compose up frontend server redis mysql rabbitmq --force-recreate
 ```
 
 ## ☸️ Infrastructure Deployment

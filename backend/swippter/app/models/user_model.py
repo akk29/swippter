@@ -68,6 +68,7 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     salt = models.CharField(max_length=32, blank=False, null=False)
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    address = models.CharField(max_length=1000,default="")
 
     objects = UserManager()
 
