@@ -7,9 +7,11 @@ from django.http import HttpResponse
 from rest_framework import status as S
 
 class FILLER:
-    # Common or one time / non-context
+    # Common or one time / non-context / Single word
     A = "A"
     ADMIN = "admin"
+    ADMIN_EMAIL = "ADMIN_EMAIL"
+    ADMIN_PASSWORD = "ADMIN_PASSWORD"
     APPLICATION_JSON = "application/json"
     CODE = "code"
     ERRORS = "errors"
@@ -38,13 +40,7 @@ class FILLER:
     UTF8 = "utf-8"
     Z = "Z"
 
-    # Colors
-    GREEN = "\x1b[1;32m"
-    GREY = "\x1b[38;20m"
-    YELLOW = "\x1b[33;20m"
-    RED = "\x1b[31;20m"
-    BOLD_RED = "\x1b[31;1m"
-    RESET = "\x1b[0m"
+    
 
     # Errors msgs
     BAD_REQUEST = "Bad Request"
@@ -64,6 +60,14 @@ class FILLER:
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
     LOGGING_FORMAT = "%(asctime)s:%(name)s:%(levelname)s - %(module)s:%(filename)s:%(funcName)s:%(lineno)d --- %(message)s"
+    
+    # Logging Colors
+    LOG_GREEN = "\x1b[1;32m"
+    LOG_GREY = "\x1b[38;20m"
+    LOG_YELLOW = "\x1b[33;20m"
+    LOG_RED = "\x1b[31;20m"
+    LOG_BOLD_RED = "\x1b[31;1m"
+    LOG_RESET = "\x1b[0m"
 
     # Redis msgs
     REDIS_CONNECTION_SUCCESS = "Successfully connected to Redis!"
@@ -73,6 +77,11 @@ class FILLER:
     RETRIEVED_VALUE = "Retrieved value:"
     REDIS_CONNECTION_ERROR = "Redis connection error:"
     UNEXPECTED_ERROR_REDIS = "An unexpected error occurred:"
+
+    # Other strings in Application
+    CREATING_ADMIN_USER = 'creating admin user'
+    ADMIN_USER_ALREADY_REGISTERED = 'admin user already registered'
+    ADMIN_USER_REGISTERED = 'admin user registered'
 
 
 F = FILLER

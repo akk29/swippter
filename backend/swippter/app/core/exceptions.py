@@ -49,7 +49,6 @@ class ExceptionSerializer:
 
     @staticmethod
     def process_exception(error):
-        print(error)
         return {
             F.STATUS: error.status,
             F.NAME: error.name,

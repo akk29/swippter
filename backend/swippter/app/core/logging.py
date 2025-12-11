@@ -5,12 +5,12 @@ from app.utils.utilities import F
 
 class CustomFormatter(logging.Formatter):
 
-    green = F.GREEN
-    grey = F.GREY
-    yellow = F.YELLOW
-    red = F.RED
-    bold_red = F.BOLD_RED
-    reset = F.RESET
+    green = F.LOG_GREEN
+    grey = F.LOG_GREY
+    yellow = F.LOG_YELLOW
+    red = F.LOG_RED
+    bold_red = F.LOG_BOLD_RED
+    reset = F.LOG_RESET
     format = F.LOGGING_FORMAT
 
     FORMATS = {
