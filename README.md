@@ -42,42 +42,53 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 - 🔍 Product search and filtering
 - 📱 Responsive design
 
+
+
 ## 🏗️ Architecture
 
-![Swippter Application Architecture](backend/docs/swippter-design.svg)
+### Design Document
+
+[Swippter Design Document](https://iron-saga-b0b.notion.site/swippter-2a901d4de5ee804f9bccd7441898614a)
+
+![Swippter Application Architecture](docs/backend/swippter-design.svg)
 
 ### Technology Stack
 
 **Backend:**
-- Python 3.x
+- Python - 3.13
 - Django + DRF
 - MySQL (database)
 - Redis (caching)
 - Celery/RabbitMQ (task queue)
-- Swagger / Swagger UI - API Documentation
-- Open API - API Documentation
 - UV - Package Manager
 
 **Frontend:**
 - React.js
 - TypeScript
 - Tailwind CSS / Material-UI
-- Bun
+- NodeJS - 22.
+- Bun - 1.3.4
 
 **Infrastructure:**
 - Docker & Docker Compose
 - Kubernetes
 
+**Documentation:**
+- Swagger / Swagger UI - API Documentation
+- Open API - API Documentation
+
 ## 📦 Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- **Docker** (20.10+)
-- **Docker Compose** (2.0+)
-- **Python** (3.9+)
-- **Node.js** (16+) and npm/yarn
+- **Docker** (29.1.2+)
+- **Docker Compose** (v2.40.3-desktop.1)
+- **Python** (3.13.3+)
+- **Node.js** (22.15.1+) and npm/yarn
 - **Git**
 - **kubectl** (for Kubernetes deployment)
+  - Client Version: v1.34.1
+  - Kustomize Version: v5.7.1
 
 ### System Requirements
 
@@ -171,7 +182,7 @@ ADMIN_USERNAME="a@a.com"
 ADMIN_EMAIL="a@a.com"
 ADMIN_PASSWORD="test@1234"
 
-CELERY_BROKER_URL='amqp://guest:guest@localhost:5672/'
+CELERY_BROKER_URL='amqp://guest:guest@127.0.0.1:5672/'
 CELERY_TASK_SERIALIZER='json'
 
 ```
@@ -698,14 +709,6 @@ docker compose run mysql
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-### Quick Contribution Guide
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📄 License
 
