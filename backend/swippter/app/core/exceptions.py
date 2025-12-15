@@ -40,12 +40,12 @@ def process_library_exceptions(exc, context):
 
 class ExceptionHandler(MiddlewareMixin):
     def process_exception(self, request, exception):
-        payload = ExceptionSerializer.process_exception(exception)
+        payload = ExceptionGenerator.process_exception(exception)
         response = get_http_response(payload, payload[F.STATUS])
         return response
 
 
-class ExceptionSerializer:
+class ExceptionGenerator:
 
     @staticmethod
     def process_exception(error):

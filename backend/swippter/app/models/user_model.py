@@ -3,7 +3,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.db.models.signals import post_save
 from rest_framework import status as S
-from app.core.exceptions import UnprocessableError, CUSTOM_CODE, ExceptionSerializer
+from app.core.exceptions import UnprocessableError, CUSTOM_CODE
 from app.models.base_model import BaseModel
 from app.utils.utilities import F, generate_salt
 from app.models.signals.user_signal import trigger_user_verification_email

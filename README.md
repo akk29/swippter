@@ -43,7 +43,6 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 - 📱 Responsive design
 
 
-
 ## 🏗️ Architecture
 
 ### Design Document
@@ -102,7 +101,7 @@ Before you begin, ensure you have the following installed:
 swippter/
 +---backend
 |   +---.venv
-|   |   \---Scripts
+|   |   +---Scripts
 |   +---swippter
 |       +---app
 |       |   +---core                    # backend core code
@@ -162,28 +161,35 @@ cp .env.example .env
 
 Edit `.env` with your configuration:
 
-```env
+```bash
 # Database settings
 DB="mysql"
 DATABASE="swippterdb"
 DBUSER="dbuser"
 DBPASSWORD="rootpassword"
-DBHOST="127.0.0.1"
+DBHOST="localhost"
 DBPORT="3306"
-
-DEBUG=False
-FRONT_URL='http://localhost:3000'
-
-REDIS="redis://127.0.0.1:6379"
-
-SECRET_KEY='django-insecure-15+$3k4=e3b+bmp!wca8_-_n)#w9-yp3329!2+u81i!tzw!efo'
-THROTTLE_RATE='2000/min'
-ADMIN_USERNAME="a@a.com"
+# Django framework settings
+DEBUG=True
+SECRET_KEY="!efo=n)#gcu8_-_15u81i-e3bre!2o-3inse+wca+bmp!+$w9-yp3djan3k4!tzw29"
+# Django framework settings 
+THROTTLE_RATE="2000/min"
+# Admin user credentials
 ADMIN_EMAIL="a@a.com"
 ADMIN_PASSWORD="test@1234"
-
-CELERY_BROKER_URL='amqp://guest:guest@127.0.0.1:5672/'
-CELERY_TASK_SERIALIZER='json'
+# Redis settings
+REDIS="redis://localhost:6379"
+# Celery settings
+CELERY_BROKER_URL="amqp://guest:guest@localhost:5672/"
+CELERY_TASK_SERIALIZER="json"
+# Email Vendor settings
+TRIGGER_MAIL_SWITCH=False
+INFO_EMAIL="info@swippter.com"
+RESET_EMAIL="reset@swippter.com"
+EMAIL_HOST="sandbox.smtp.mailtrap.io"
+EMAIL_HOST_USER="email_host_user"
+EMAIL_HOST_PASSWORD="email_host_password"
+EMAIL_PORT="25"
 
 ```
 
@@ -267,7 +273,7 @@ Running migrations:
 
 # Create superuser (admin)
 python manage.py create_admin
-username: a@a.com
+username: admin@admin.com
 password: test@1234
 ```
 
@@ -406,22 +412,27 @@ DBUSER="dbuser"
 DBPASSWORD="rootpassword"
 DBHOST="mysql" # point to container
 DBPORT="3306"
-
+# Django framework settings
 DEBUG=False
-FRONT_URL='http://localhost:3000'
-
-REDIS="redis://redis:6379" # point to container
-
 SECRET_KEY='django-insecure-15+$3k4=e3b+bmp!wca8_-_n)#w9-yp3329!2+u81i!tzw!efo'
+# Django rest framework settings 
 THROTTLE_RATE='2000/min'
-ADMIN_USERNAME="a@a.com"
+# Admin user credentials
 ADMIN_EMAIL="a@a.com"
 ADMIN_PASSWORD="test@1234"
-
+# Redis settings
+REDIS="redis://redis:6379" # point to container
+# Celery settings
 CELERY_BROKER_URL='amqp://guest:guest@rabbimq:5672/' # point to container
 CELERY_TASK_SERIALIZER='json'
-
-
+# Mailtrap settings
+TRIGGER_MAIL_SWITCH=False
+INFO_EMAIL="info@swippter.com"
+RESET_EMAIL="reset@swippter.com"
+EMAIL_HOST="sandbox.smtp.mailtrap.io"
+EMAIL_HOST_USER="email_host_user"
+EMAIL_HOST_PASSWORD="email_host_password"
+EMAIL_PORT="25"
 ```
 
 
@@ -501,12 +512,6 @@ docker-compose logs -f backend frontend
 
 # Kubernetes logs
 kubectl logs -f deployment/backend -n swippter
-
-# Access Flower (Celery monitoring)
-open http://localhost:5555
-
-# PostgreSQL monitoring
-docker-compose exec postgres psql -U swippter_user -d swippter_db
 
 # Redis monitoring
 docker-compose exec redis redis-cli INFO

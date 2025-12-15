@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from app.core.exceptions import (
     UnprocessableError,
     CUSTOM_CODE,
-    ExceptionSerializer
+    ExceptionGenerator
 )
 from app.utils.utilities import (
     F,
@@ -50,7 +50,7 @@ class RaiseErrorView(APIView):
     throttle_classes = [UserRateThrottle]
 
     def get(self, request):
-        errors = ExceptionSerializer.error_generator(
+        errors = ExceptionGenerator.error_generator(
             [
                 {
                     F.FIELD: F.USERNAME,
