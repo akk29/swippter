@@ -2,6 +2,7 @@ import json
 import bcrypt
 import hashlib
 import random
+import re
 from datetime import datetime
 from django.http import HttpResponse
 from rest_framework import status as S
@@ -79,9 +80,12 @@ class FILLER:
     UNEXPECTED_ERROR_REDIS = "An unexpected error occurred:"
 
     # Other strings in Application
-    CREATING_ADMIN_USER = 'creating admin user'
-    ADMIN_USER_ALREADY_REGISTERED = 'admin user already registered'
-    ADMIN_USER_REGISTERED = 'admin user registered'
+    ADMIN_USER_ALREADY_REGISTERED = "Admin user already registered"
+    ADMIN_USER_REGISTERED = "Admin user registered"
+    ADMIN_USER_NOT_REGISTERED = "Admin user not registered"
+    CREATING_ADMIN_USER = "Creating admin user"
+    ERROR_IN_ADMIN_EMAIL = "Error in admin email"
+    ERROR_IN_ADMIN_PASSWORD = "Error in admin password"
 
 
 F = FILLER
@@ -108,3 +112,14 @@ def generate_salt():
 
 def generate_password_hash(password,salt):    
     return bcrypt.hashpw(password.encode(F.UTF8), salt)
+
+def is_valid_email(email):
+    """Check if the email is a valid format."""
+    # Regular expression for validating a standard Email format
+    # "name.surname+mail@ireland.gmail-google.uk.com", passing all the cases for email
+    regex_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    # Use re.fullmatch() to ensure the entire string matches the pattern
+    if re.fullmatch(regex_pattern, email):
+        return True
+    else:
+        return False
