@@ -124,6 +124,9 @@ elif(DB == "mysql"):
         }
     }
 
+# https://www.django-rest-framework.org/api-guide/throttling/#setting-the-throttling-policy
+# https://drf-spectacular.readthedocs.io/en/latest/readme.html#installation
+
 THROTTLE_RATE = config("THROTTLE_RATE")
 
 REST_FRAMEWORK = {
@@ -139,7 +142,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Swippter Rest API",
-    "DESCRIPTION": "Swippter is a Fast fashion Ecommerce",
+    "DESCRIPTION": "Fast-fashion online storefront",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
@@ -161,6 +164,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+# https://docs.djangoproject.com/en/5.2/topics/cache/
 
 REDIS = config("REDIS")
 
@@ -185,12 +190,11 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", cast=bool)
 
 # CUSTOM AUTHENTICATION
-  
+# https://docs.djangoproject.com/en/5.2/topics/auth/customizing/
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'app.core.backend.custom_authentication.CustomAuthenticationBackend',
 ]
-
 AUTH_USER_MODEL = 'app.User'
 
 # EMAIL INTEGRATION
