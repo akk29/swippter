@@ -41,10 +41,9 @@ class FILLER:
     UTF8 = "utf-8"
     Z = "Z"
 
-    
-
     # Errors msgs
     BAD_REQUEST = "Bad Request"
+    CONFLICT = "Conflict"
     METHOD_NOT_ALLOWED = "Method not allowed"
     INTERNAL_SERVER_ERROR = "Internal Server Error"
     NOT_FOUND = "Not found"
@@ -52,6 +51,16 @@ class FILLER:
     UNAUTHORIZED = "Unauthorized"
     TOO_MANY_REQUESTS = "You have made too many requests. Please try again later. Retry after {} seconds"
     UNPROCESSABLE = "Unprocessable"
+
+    # Database Error msgs
+    DATA_INTEGRITY_CONSTRAINT_VOLIATED = "Data integrity constraint violated."
+    DATABASE_TEMPORARILY_UNAVAILABLE = "Database temporarily unavailable."
+    DATABASE_ERROR_OCCURRED = "Database error occurred."
+    INVALID_DATA_FORMAT = "Invalid data format."
+    VALIDATION_FAILED = "Validation Failed."
+    CANNOT_DELETE_PROTECTED_RESOURCE = "Cannot delete protected resource."
+    DATABASE_OPERATION_NOT_SUPPORRTED = 'Database operation not supported.'
+    DATABASE_PROGRAMMING_ERROR = 'Database programming error.'
 
     # Custom Error msgs / Business Logic
     USERNAME_UNAVAILABLE = "Username unavailable"
@@ -86,7 +95,6 @@ class FILLER:
     CREATING_ADMIN_USER = "Creating admin user"
     ERROR_IN_ADMIN_EMAIL = "Error in admin email"
     ERROR_IN_ADMIN_PASSWORD = "Error in admin password"
-
 
 F = FILLER
 
@@ -123,3 +131,10 @@ def is_valid_email(email):
         return True
     else:
         return False
+    
+def get_item(arr, index):
+    try:
+        item = arr[index]
+        return item
+    except IndexError:
+        return None
