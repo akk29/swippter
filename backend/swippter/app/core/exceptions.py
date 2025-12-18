@@ -181,7 +181,7 @@ DB_ERROR_MAP = {
     },
 }
 
-ERROR_MAP.update(**DB_ERROR_MAP)
+ERROR_MAP.update(DB_ERROR_MAP)
 
 
 class ExceptionHandler(MiddlewareMixin):
