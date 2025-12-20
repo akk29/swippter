@@ -80,9 +80,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "app.core.throttlers.ThrottleHeaderMiddleware",
-    "app.core.exceptions.ExceptionHandler",
     "app.core.middlewares.JSONValidationMiddleware",
+    "app.core.middlewares.ThrottleHeaderMiddleware",
+    "app.core.exceptions.ExceptionHandler",
 ]
 
 TEMPLATES = [

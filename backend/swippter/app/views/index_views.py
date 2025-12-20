@@ -14,7 +14,7 @@ from app.utils.utilities import (
     my_etag_func,
     my_last_modified_func,
 )
-
+from app.core.throttlers import CustomRateThrottle
 
 class IndexView(APIView):
 
@@ -47,7 +47,7 @@ class IndexView(APIView):
 
 class RaiseErrorView(APIView):
 
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
         errors = ExceptionGenerator.error_generator(
