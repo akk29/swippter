@@ -82,6 +82,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "app.core.throttlers.ThrottleHeaderMiddleware",
     "app.core.exceptions.ExceptionHandler",
+    "app.core.middlewares.JSONValidationMiddleware",
 ]
 
 TEMPLATES = [

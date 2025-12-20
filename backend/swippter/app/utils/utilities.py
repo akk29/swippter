@@ -14,6 +14,7 @@ class FILLER:
     ADMIN_EMAIL = "ADMIN_EMAIL"
     ADMIN_PASSWORD = "ADMIN_PASSWORD"
     APPLICATION_JSON = "application/json"
+    BODY = "body"
     CODE = "code"
     ERRORS = "errors"
     EMAIL = "email"
@@ -22,6 +23,7 @@ class FILLER:
     IS_SUPERUSER = "is_superuser"
     IS_STAFF = "is_staff"
     IS_VERIFIED = "is_verified"
+    INVALID_JSON = "Invalid JSON"
     KEY = "key"
     LAST_NAME = 'last_name'
     METHOD = "method"
@@ -29,6 +31,9 @@ class FILLER:
     MSG = "msg"
     MYSQL = "mysql"
     NAME = "name"
+    POST = "POST"
+    PUT = "PUT",
+    PATCH = "PATCH"
     RECIEVER = "reciever"
     ROLE = "role"
     SALT = 'salt'

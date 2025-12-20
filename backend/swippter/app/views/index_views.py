@@ -49,7 +49,7 @@ class RaiseErrorView(APIView):
 
     throttle_classes = [UserRateThrottle]
 
-    def get(self, request):
+    def post(self, request):
         errors = ExceptionGenerator.error_generator(
             [
                 {
