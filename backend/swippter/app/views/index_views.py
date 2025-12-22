@@ -1,20 +1,17 @@
 from django.views.decorators.http import condition
 from django.utils.decorators import method_decorator
-from rest_framework import status as S
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
-from app.core.exceptions import (
-    UnprocessableError,
-    CUSTOM_CODE,
-    ExceptionGenerator
-)
+from app.core.throttlers import CustomRateThrottle
+from app.services.patterns.service_factory import ServiceFactory
 from app.utils.utilities import (
     F,
     get_http_response,
     my_etag_func,
     my_last_modified_func,
 )
-from app.core.throttlers import CustomRateThrottle
+
+index_service = ServiceFactory.get_index_service()
 
 class IndexView(APIView):
 
@@ -50,49 +47,4 @@ class RaiseErrorView(APIView):
     throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
-        errors = ExceptionGenerator.error_generator(
-            [
-                {
-                    F.FIELD: F.USERNAME,
-                    F.ERRORS: [
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                            F.MSG: F.USERNAME_UNAVAILABLE,
-                        },
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                            F.MSG: F.USERNAME_NOT_ALLOWED,
-                        },
-                    ],
-                },
-                {
-                    F.FIELD: F.METHOD,
-                    F.ERRORS: [
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                            F.MSG: F.USERNAME_UNAVAILABLE,
-                        },
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                            F.MSG: F.USERNAME_NOT_ALLOWED,
-                        },
-                    ],
-                },
-                {
-                    F.FIELD: F.APPLICATION_JSON,
-                    F.ERRORS: [
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                            F.MSG: F.USERNAME_UNAVAILABLE,
-                        },
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                            F.MSG: F.USERNAME_NOT_ALLOWED,
-                        },
-                    ],
-                },
-            ]
-        )
-        raise UnprocessableError(
-            code=S.HTTP_422_UNPROCESSABLE_ENTITY, msg=F.UNPROCESSABLE, errors=errors
-        )
+        index_service.raise_error_manager()
