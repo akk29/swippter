@@ -4,4 +4,4 @@ class DAOFactory():
 
     @staticmethod
     def get_model_instance():
-        pass
+        return UserDAO.get_instance()

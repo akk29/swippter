@@ -7,6 +7,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from rest_framework import status as S
 
+
 class FILLER:
     # Common or one time / non-context / Single word
     A = "A"
@@ -25,18 +26,18 @@ class FILLER:
     IS_VERIFIED = "is_verified"
     INVALID_JSON = "Invalid JSON"
     KEY = "key"
-    LAST_NAME = 'last_name'
+    LAST_NAME = "last_name"
     METHOD = "method"
     MESSAGE = "message"
     MSG = "msg"
     MYSQL = "mysql"
     NAME = "name"
     POST = "POST"
-    PUT = "PUT",
+    PUT = ("PUT",)
     PATCH = "PATCH"
     RECIEVER = "reciever"
     ROLE = "role"
-    SALT = 'salt'
+    SALT = "salt"
     SENDER = "sender"
     STATUS = "status"
     SUBJECT = "subject"
@@ -64,8 +65,8 @@ class FILLER:
     INVALID_DATA_FORMAT = "Invalid data format."
     VALIDATION_FAILED = "Validation Failed."
     CANNOT_DELETE_PROTECTED_RESOURCE = "Cannot delete protected resource."
-    DATABASE_OPERATION_NOT_SUPPORRTED = 'Database operation not supported.'
-    DATABASE_PROGRAMMING_ERROR = 'Database programming error.'
+    DATABASE_OPERATION_NOT_SUPPORRTED = "Database operation not supported."
+    DATABASE_PROGRAMMING_ERROR = "Database programming error."
 
     # Custom Error msgs / Business Logic
     USERNAME_UNAVAILABLE = "Username unavailable"
@@ -75,7 +76,7 @@ class FILLER:
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
     LOGGING_FORMAT = "%(asctime)s:%(name)s:%(levelname)s - %(module)s:%(filename)s:%(funcName)s:%(lineno)d --- %(message)s"
-    
+
     # Logging Colors
     LOG_GREEN = "\x1b[1;32m"
     LOG_GREY = "\x1b[38;20m"
@@ -101,42 +102,51 @@ class FILLER:
     ERROR_IN_ADMIN_EMAIL = "Error in admin email"
     ERROR_IN_ADMIN_PASSWORD = "Error in admin password"
 
+
 F = FILLER
+
 
 def get_http_response(
     payload=None, status=S.HTTP_200_OK, content_type=F.APPLICATION_JSON
 ):
     response = HttpResponse(
-        json.dumps(payload), status=status, content_type=F.APPLICATION_JSON
+        json.dumps(payload), status=status, content_type=content_type
     )
     return response
+
 
 def my_etag_func(request, **kwargs):
     return hashlib.sha256(f"fixed".encode()).hexdigest()
 
+
 def my_last_modified_func(request, **kwargs):
     return datetime(2024, 1, 1, 12, 0)
+
 
 def generate_random_string():
     return "".join([chr(random.randint(ord(F.A), ord(F.Z))) for _ in range(5)])
 
+
 def generate_salt():
     return bcrypt.gensalt()
 
-def generate_password_hash(password,salt):    
+
+def generate_password_hash(password, salt):
     return bcrypt.hashpw(password.encode(F.UTF8), salt)
+
 
 def is_valid_email(email):
     """Check if the email is a valid format."""
     # Regular expression for validating a standard Email format
     # "name.surname+mail@ireland.gmail-google.uk.com", passing all the cases for email
-    regex_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    regex_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     # Use re.fullmatch() to ensure the entire string matches the pattern
     if re.fullmatch(regex_pattern, email):
         return True
     else:
         return False
-    
+
+
 def get_item(arr, index):
     try:
         item = arr[index]

@@ -1,56 +1,15 @@
-from rest_framework import status as S
-from app.core.exceptions import UnprocessableError, CUSTOM_CODE, ExceptionGenerator
-from app.utils.utilities import F
+from app.utils.utilities import get_http_response
+from app.pattern.factory.validator_factory import ValidatorFactory
 from app.services.base_service import BaseService
+
+index_validator = ValidatorFactory.get_index_validator()
 
 class IndexService(BaseService):
 
     __instance = None
 
-    def raise_error_manager(self):
-        errors = ExceptionGenerator.error_generator(
-            [
-                {
-                    F.FIELD: F.USERNAME,
-                    F.ERRORS: [
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                            F.MSG: F.USERNAME_UNAVAILABLE,
-                        },
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                            F.MSG: F.USERNAME_NOT_ALLOWED,
-                        },
-                    ],
-                },
-                {
-                    F.FIELD: F.METHOD,
-                    F.ERRORS: [
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                            F.MSG: F.USERNAME_UNAVAILABLE,
-                        },
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                            F.MSG: F.USERNAME_NOT_ALLOWED,
-                        },
-                    ],
-                },
-                {
-                    F.FIELD: F.APPLICATION_JSON,
-                    F.ERRORS: [
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                            F.MSG: F.USERNAME_UNAVAILABLE,
-                        },
-                        {
-                            F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                            F.MSG: F.USERNAME_NOT_ALLOWED,
-                        },
-                    ],
-                },
-            ]
-        )
-        raise UnprocessableError(
-            code=S.HTTP_422_UNPROCESSABLE_ENTITY, msg=F.UNPROCESSABLE, errors=errors
-        )
+    def raise_error_service(self):
+        index_validator.raise_error_validator({"a":3, "b":2.72, "c":b'binary data'})
+        response = get_http_response({})
+        return response
+            

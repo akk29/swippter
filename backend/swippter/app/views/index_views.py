@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 from app.core.throttlers import CustomRateThrottle
-from app.services.patterns.service_factory import ServiceFactory
+from app.pattern.factory.service_factory import ServiceFactory
 from app.utils.utilities import (
     F,
     get_http_response,
@@ -47,4 +47,4 @@ class RaiseErrorView(APIView):
     throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
-        index_service.raise_error_manager()
+        return index_service.raise_error_service()
