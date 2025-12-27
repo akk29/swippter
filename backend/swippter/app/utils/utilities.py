@@ -7,9 +7,27 @@ from datetime import datetime
 from django.http import HttpResponse
 from rest_framework import status as S
 
+'''
+CASE CONVENTION FOR FILLER
+
+1. all small or large caps -> invert mapping
+    1. first time word usage -> declare all large caps
+       word -> "admin" 
+       Mapping -> ADMIN = 'admin' # all large
+
+    2. word -> "ADMIN" 
+       Mapping -> admin = "ADMIN" # all small
+
+2. for others cases -> exact same mapping
+    1. word -> "Admin"
+       Mapping -> Admin = "Admin"
+    2. word -> "adMIN"
+       Mapping -> adMIN = "adMIN"
+
+'''
 
 class FILLER:
-    # Common or one time / non-context / Single word
+    # Common or one time / non-context / Single word / Non Space literal
     A = "A"
     ADMIN = "admin"
     ADMIN_EMAIL = "ADMIN_EMAIL"
@@ -17,6 +35,7 @@ class FILLER:
     APPLICATION_JSON = "application/json"
     BODY = "body"
     CODE = "code"
+    CONSUMER = "consumer"
     ERRORS = "errors"
     EMAIL = "email"
     FIELD = "field"
@@ -24,7 +43,6 @@ class FILLER:
     IS_SUPERUSER = "is_superuser"
     IS_STAFF = "is_staff"
     IS_VERIFIED = "is_verified"
-    INVALID_JSON = "Invalid JSON"
     KEY = "key"
     LAST_NAME = "last_name"
     METHOD = "method"
@@ -33,14 +51,16 @@ class FILLER:
     MYSQL = "mysql"
     NAME = "name"
     POST = "POST"
-    PUT = ("PUT",)
+    PUT = "PUT"
     PATCH = "PATCH"
     RECIEVER = "reciever"
     ROLE = "role"
     SALT = "salt"
     SENDER = "sender"
+    SELLER = "seller"
     STATUS = "status"
     SUBJECT = "subject"
+    SUPER_ADMIN = "super_admin"
     USERNAME = "username"
     VERSION = "version"
     V1 = "v1"
@@ -101,6 +121,7 @@ class FILLER:
     CREATING_ADMIN_USER = "Creating admin user"
     ERROR_IN_ADMIN_EMAIL = "Error in admin email"
     ERROR_IN_ADMIN_PASSWORD = "Error in admin password"
+    INVALID_JSON = "Invalid JSON"
 
 
 F = FILLER

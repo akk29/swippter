@@ -4,16 +4,16 @@ from django.db import models
 from django.db.models.signals import post_save
 from rest_framework import status as S
 from app.core.exceptions import UnprocessableError, CUSTOM_CODE
-from app.models.base_model import BaseModel
+from app.models.base import BaseModel
 from app.utils.utilities import F, generate_salt
 from app.models.signals.user_signal import trigger_user_verification_email
 
 
 class Role(models.IntegerChoices):
-    SUPER_ADMIN = 1, "super_admin"
-    ADMIN = 2, "admin"
-    CONSUMER = 3, "consumer"
-    SELLER = 4, "seller"
+    SUPER_ADMIN = 1, F.SUPER_ADMIN
+    ADMIN = 2, F.ADMIN
+    CONSUMER = 3, F.CONSUMER
+    SELLER = 4, F.SELLER
 
 
 class UserManager(BaseUserManager):

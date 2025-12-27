@@ -4,6 +4,7 @@ from django.core.exceptions import (
     ValidationError,
     BadRequest,
     RequestAborted,
+    ObjectDoesNotExist,
 )
 from django.urls import Resolver404, NoReverseMatch
 from django.http import UnreadablePostError, Http404
@@ -11,7 +12,7 @@ from django.db import (
     DatabaseError,
     DataError,
     OperationalError,
-    IntegrityError,
+    IntegrityError,  # ProtectedError and RestrictedError
     InternalError,
     ProgrammingError,
     NotSupportedError,
@@ -24,6 +25,7 @@ from app.core.logging import Logger
 from app.utils.utilities import F, get_http_response, generate_random_string, get_item
 
 logger = Logger.get_logger()
+
 
 class ERROR_NAME:
     BAD_REQUEST_ERROR = "BAD_REQUEST_ERROR"
@@ -39,6 +41,7 @@ class ERROR_NAME:
     NOT_IMPLEMENTED_ERROR = "NOT_IMPLEMENTED_ERROR"
     INTEGRITY_ERROR = "INTEGRITY_ERROR"
 
+
 # Application / Business Logic Based Errors
 class CUSTOM_CODE:
     EMAIL_MUST_BE_SET = "2886623e"
@@ -48,6 +51,17 @@ class CUSTOM_CODE:
 
 def process_library_exceptions(exc, context):
     response = exception_handler(exc, context)
+
+    if response is not None and response.status_code == S.HTTP_405_METHOD_NOT_ALLOWED:
+        payload = {
+            F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
+            F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
+            F.CODE: S.HTTP_405_METHOD_NOT_ALLOWED,
+            F.MSG: F.METHOD_NOT_ALLOWED,
+            F.ERRORS: [],
+        }
+        response.data = payload
+        return response
 
     if isinstance(exc, Throttled):
         wait_time = exc.wait
@@ -92,10 +106,17 @@ EXCEPTION_ERROR_MAP = {
         F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
         F.ERRORS: [],
     },
+    ObjectDoesNotExist: {
+        F.STATUS: S.HTTP_404_NOT_FOUND,
+        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
+        F.CODE: S.HTTP_404_NOT_FOUND,
+        F.MSG: F.NOT_FOUND,
+        F.ERRORS: [],
+    },
     ValidationError: {
         F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
         F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
-        F.CODE: S.HTTP_400_BAD_REQUEST,
+        F.CODE: S.HTTP_422_UNPROCESSABLE_ENTITY,
         F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
         F.ERRORS: [],
     },
@@ -128,13 +149,6 @@ DB_ERROR_MAP = {
     #     F.NAME: ERROR_NAME.CONFLICT_ERROR,
     #     F.CODE: S.HTTP_409_CONFLICT,
     #     F.MSG: F.CANNOT_DELETE_PROTECTED_RESOURCE,
-    #     F.ERRORS: [],
-    # },
-    # ObjectDoesNotExist: {
-    #     F.STATUS: S.HTTP_404_NOT_FOUND,
-    #     F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
-    #     F.CODE: S.HTTP_404_NOT_FOUND,
-    #     F.MSG: F.NOT_FOUND,
     #     F.ERRORS: [],
     # },
     DataError: {

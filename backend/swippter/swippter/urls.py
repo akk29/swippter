@@ -21,7 +21,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView,  Spe
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('app.routes.index_routes'))    
+    path('',include('app.routes.index_routes')),
+    path('',include('app.routes.authentication_routes'))    
 ]
 
 # https://drf-spectacular.readthedocs.io/en/latest/readme.html#installation
