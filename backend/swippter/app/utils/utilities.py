@@ -45,11 +45,13 @@ class FILLER:
     IS_VERIFIED = "is_verified"
     KEY = "key"
     LAST_NAME = "last_name"
+    LOC = "loc"
     METHOD = "method"
     MESSAGE = "message"
     MSG = "msg"
     MYSQL = "mysql"
     NAME = "name"
+    PASSWORD = "password"
     POST = "POST"
     PUT = "PUT"
     PATCH = "PATCH"
@@ -61,6 +63,7 @@ class FILLER:
     STATUS = "status"
     SUBJECT = "subject"
     SUPER_ADMIN = "super_admin"
+    TYPE = "type"
     USERNAME = "username"
     VERSION = "version"
     V1 = "v1"
@@ -92,6 +95,8 @@ class FILLER:
     USERNAME_UNAVAILABLE = "Username unavailable"
     USERNAME_NOT_ALLOWED = "Username not allowed"
     EMAIL_MUST_BE_SET = "The given email must be set"
+    EMAIL_ALREADY_TAKEN = "The given email is already registered"
+    INVALID_ROLE = "Role should have these values {}"
 
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
@@ -174,3 +179,7 @@ def get_item(arr, index):
         return item
     except IndexError:
         return None
+
+# def generate_token(user):
+#     payload = {F.ID : user.id , F.EMAIL  : user.email , F.ROLE : profileTyepMapping[int(user.profiletype)]}    
+#     return jwt.encode(payload,SECRET_KEY,algorithm=F.HS256).decode(F.UTF8) 

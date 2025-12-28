@@ -5,7 +5,7 @@ class UserDAO(BaseDAO):
 
     __instance = None
 
-    def __init__(self, model):
+    def __init__(self):
         super().__init__(User)
         self.model = User
     

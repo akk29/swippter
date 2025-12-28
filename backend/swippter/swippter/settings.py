@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from corsheaders.defaults import default_methods
+from datetime import timedelta
 from decouple import config
 from pathlib import Path
 
@@ -25,9 +26,11 @@ CORS_ALLOW_METHODS = [*default_methods]
 ROOT_URLCONF = "swippter.urls"
 WSGI_APPLICATION = "swippter.wsgi.application"
 
-CELERY_BROKER_URL = config('CELERY_BROKER_URL')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
+# Celery Broker Settings
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = config("CELERY_TASK_SERIALIZER")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -48,12 +51,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static-files/")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# https://docs.djangoproject.com/en/dev/topics/cache/
-
-CACHE_MIDDLEWARE_ALIAS = "backend"
-CACHE_MIDDLEWARE_SECONDS = 5
-CACHE_MIDDLEWARE_KEY_PREFIX = "swippter"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -66,6 +63,7 @@ INSTALLED_APPS = [
     "app",
     "corsheaders",
     "drf_spectacular",
+    'rest_framework_simplejwt',
     "app.config.AppConfig",
 ]
 
@@ -76,7 +74,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    'django.middleware.http.ConditionalGetMiddleware',
+    "django.middleware.http.ConditionalGetMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -113,15 +111,15 @@ if DB == "sqllite3":
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-elif(DB == "mysql"):
+elif DB == "mysql":
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('DATABASE'),
-            'USER': config('DBUSER'),
-            'PASSWORD': config('DBPASSWORD'),
-            'HOST': config('DBHOST'),
-            'PORT': config('DBPORT'),
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": config("DATABASE"),
+            "USER": config("DBUSER"),
+            "PASSWORD": config("DBPASSWORD"),
+            "HOST": config("DBHOST"),
+            "PORT": config("DBPORT"),
         }
     }
 
@@ -137,8 +135,11 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {"user": THROTTLE_RATE, "anon": THROTTLE_RATE},
-    'DEFAULT_ETAG_FUNC': 'app.views.index_views.my_etag_func',
-    'EXCEPTION_HANDLER': "app.core.exceptions.process_library_exceptions",
+    "DEFAULT_ETAG_FUNC": "app.views.index_views.my_etag_func",
+    "EXCEPTION_HANDLER": "app.core.exceptions.process_library_exceptions",
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -181,6 +182,10 @@ CACHES = {
     },
 }
 
+CACHE_MIDDLEWARE_ALIAS = "backend"
+CACHE_MIDDLEWARE_SECONDS = 5
+CACHE_MIDDLEWARE_KEY_PREFIX = "swippter"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -193,15 +198,63 @@ DEBUG = config("DEBUG", cast=bool)
 # CUSTOM AUTHENTICATION
 # https://docs.djangoproject.com/en/5.2/topics/auth/customizing/
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'app.core.backend.custom_authentication.CustomAuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "app.core.backend.custom_authentication.CustomAuthenticationBackend",
 ]
-AUTH_USER_MODEL = 'app.User'
+AUTH_USER_MODEL = "app.User"
 
 # EMAIL INTEGRATION
-TRIGGER_MAIL_SWITCH = config('TRIGGER_MAIL_SWITCH',cast=bool)
-EMAIL_HOST = config('EMAIL_HOST')
+TRIGGER_MAIL_SWITCH = config("TRIGGER_MAIL_SWITCH", cast=bool)
+EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = config('EMAIL_PORT')
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = config("EMAIL_PORT")
+
+# https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#settings
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(hours=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "uuid",
+    "USER_ID_CLAIM": "uuid",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+    "ON_LOGIN_SUCCESS": "rest_framework_simplejwt.serializers.default_on_login_success",
+    "ON_LOGIN_FAILED": "rest_framework_simplejwt.serializers.default_on_login_failed",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+
+    "CHECK_REVOKE_TOKEN": False,
+    "REVOKE_TOKEN_CLAIM": "hash_password",
+    "CHECK_USER_IS_ACTIVE": True,
+}

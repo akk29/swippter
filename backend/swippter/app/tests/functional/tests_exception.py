@@ -1,12 +1,15 @@
 import unittest
 from rest_framework.exceptions import Throttled
+from django.db import DatabaseError
 from app.core.exceptions import (
     BadRequestError,
+    ConflitError,
     UnauthorizedError,
     ForbiddenError,
     NotFoundError,
     MethodNotAllowedError,
     UnprocessableError,
+    ExceptionGenerator,
     Exception500,
     process_library_exceptions)
 
@@ -54,3 +57,12 @@ class ExceptionTest(unittest.TestCase):
 
     def test_throttled(self):
         process_library_exceptions(Throttled(wait=5), "")
+
+    def test_conflict(self):
+        try:
+            raise ConflitError()
+        except ConflitError as e:
+            self.assertEqual(ConflitError, type(e))
+
+    def test_exception_generator(self):
+        ExceptionGenerator.error_generator()

@@ -42,16 +42,37 @@ class ERROR_NAME:
     INTEGRITY_ERROR = "INTEGRITY_ERROR"
 
 
+
 # Application / Business Logic Based Errors
 class CUSTOM_CODE:
     EMAIL_MUST_BE_SET = "2886623e"
-    USERNAME_TAKEN = "428e5342"
-    USERNAME_NOT_ALLOWED = "09023859"
+    EMAIL_ALREADY_TAKEN = "45855239"
+    PYDANTIC_VALIDATION = "09023855"
+    INVALID_ROLE = "83905850"
+
+    @classmethod
+    def get(cls, value):
+        """Get variable name by its value"""
+        for name, val in vars(cls).items():
+            if not name.startswith('_') and not callable(val) and val == value:
+                return name
+        return None
 
 
 def process_library_exceptions(exc, context):
     response = exception_handler(exc, context)
 
+    if response is not None and response.status_code == S.HTTP_401_UNAUTHORIZED:        
+        payload = {
+            F.STATUS: S.HTTP_401_UNAUTHORIZED,
+            F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+            F.CODE: S.HTTP_401_UNAUTHORIZED,
+            F.MSG: F.UNAUTHORIZED,
+            F.ERRORS: [],
+        }
+        response.data = payload
+        return response
+    
     if response is not None and response.status_code == S.HTTP_405_METHOD_NOT_ALLOWED:
         payload = {
             F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
@@ -202,7 +223,6 @@ class ExceptionHandler(MiddlewareMixin):
 
     def process_exception(self, request, exception):
         if isinstance(exception, DatabaseError):
-            print(str(exception).lower())
             for exc_type, config in ERROR_MAP.items():
                 if isinstance(exception, exc_type):
                     exception = BaseError(
@@ -386,6 +406,10 @@ def Exception500(request, *args, **kwargs):
 # ============================================
 # COMMON MYSQL ERROR CODES
 # ============================================
+
+'''
+{'status': 400, 'name': 'INTEGRITY_ERROR', 'code': 400, 'msg': 'Data integrity constraint violated.', 'errors': (1062, "Duplicate entry 'hhc2@c.com' for key 'app_user.email'")}
+'''
 
 """
 MySQL Error Codes Reference:

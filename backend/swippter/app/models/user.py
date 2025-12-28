@@ -1,3 +1,4 @@
+import enum
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
@@ -8,13 +9,17 @@ from app.models.base import BaseModel
 from app.utils.utilities import F, generate_salt
 from app.models.signals.user_signal import trigger_user_verification_email
 
+class RoleEnum(enum.IntEnum):
+    SUPER_ADMIN = 1
+    ADMIN = 2
+    CONSUMER = 3
+    SELLER = 4
 
 class Role(models.IntegerChoices):
-    SUPER_ADMIN = 1, F.SUPER_ADMIN
-    ADMIN = 2, F.ADMIN
-    CONSUMER = 3, F.CONSUMER
-    SELLER = 4, F.SELLER
-
+    SUPER_ADMIN = RoleEnum.SUPER_ADMIN.value, F.SUPER_ADMIN
+    ADMIN = RoleEnum.ADMIN.value, F.ADMIN
+    CONSUMER = RoleEnum.CONSUMER.value, F.CONSUMER
+    SELLER = RoleEnum.SELLER.value, F.SELLER
 
 class UserManager(BaseUserManager):
     use_in_migrations = True

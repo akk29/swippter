@@ -1,10 +1,11 @@
+import json
+from collections import defaultdict
+from typing import Dict
+from pydantic import BaseModel, ValidationError as PydanticValidationError
 from rest_framework import status as S
 from app.core.exceptions import UnprocessableError, CUSTOM_CODE, ExceptionGenerator
 from app.utils.utilities import F
-from typing import Dict
-from pydantic import BaseModel, ValidationError
 from app.pattern.singleton import SingletonPattern
-from app.core.exceptions import UnprocessableError
 
 class BaseValidator(SingletonPattern):
 
@@ -12,63 +13,36 @@ class BaseValidator(SingletonPattern):
         self.model = model
         self.data = data
 
+    def get_custom_code(self,error_type):
+        try:   
+            data = getattr(CUSTOM_CODE,error_type)     
+            return data
+        except AttributeError:
+            return CUSTOM_CODE.PYDANTIC_VALIDATION
+
     def validate_data(self):
         try:
             self.model.model_validate(self.data, strict=True)
-        except ValidationError as err:
-            errors = ExceptionGenerator.error_generator(
-                [
+        except PydanticValidationError as err:
+            error_map = defaultdict(lambda: [])
+            for error in json.loads(err.json()):
+                print(error)
+                err = error_map[error[F.LOC][0]]
+                err.append(
                     {
-                        F.FIELD: F.USERNAME,
-                        F.ERRORS: [
-                            {
-                                F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                                F.MSG: F.USERNAME_UNAVAILABLE,
-                            },
-                            {
-                                F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                                F.MSG: F.USERNAME_NOT_ALLOWED,
-                            },
-                        ],
-                    },
-                    {
-                        F.FIELD: F.METHOD,
-                        F.ERRORS: [
-                            {
-                                F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                                F.MSG: F.USERNAME_UNAVAILABLE,
-                            },
-                            {
-                                F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                                F.MSG: F.USERNAME_NOT_ALLOWED,
-                            },
-                        ],
-                    },
-                    {
-                        F.FIELD: F.APPLICATION_JSON,
-                        F.ERRORS: [
-                            {
-                                F.CODE: CUSTOM_CODE.USERNAME_TAKEN,
-                                F.MSG: F.USERNAME_UNAVAILABLE,
-                            },
-                            {
-                                F.CODE: CUSTOM_CODE.USERNAME_NOT_ALLOWED,
-                                F.MSG: F.USERNAME_NOT_ALLOWED,
-                            },
-                        ],
-                    },
-                ]
-            )
+                        F.CODE: self.get_custom_code(error[F.TYPE]),
+                        F.MSG: error[F.MSG],
+                    }
+                )
+                error_map[error[F.LOC][0]] = err
+                final_err = [{F.FIELD: k, F.ERRORS: v} for k, v in error_map.items()]
+            errors = ExceptionGenerator.error_generator(final_err)
             raise UnprocessableError(
-                code=S.HTTP_422_UNPROCESSABLE_ENTITY, msg=F.UNPROCESSABLE, errors=errors
+                code=S.HTTP_422_UNPROCESSABLE_ENTITY,
+                msg=F.UNPROCESSABLE,
+                errors=errors,
             )
-            raise UnprocessableError(errors=err)
 
     def validate(self, model: BaseModel, data: Dict):
         self.set_params(model, data)
         self.validate_data()
-
-
-"""
-
-"""

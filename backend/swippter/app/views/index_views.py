@@ -2,6 +2,7 @@ from django.views.decorators.http import condition
 from django.utils.decorators import method_decorator
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from app.core.throttlers import CustomRateThrottle
 from app.pattern.factory.service_factory import ServiceFactory
 from app.utils.utilities import (
@@ -16,6 +17,7 @@ index_service = ServiceFactory.get_index_service()
 class IndexView(APIView):
 
     throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
 
     @method_decorator(
         condition(etag_func=my_etag_func, last_modified_func=my_last_modified_func),
