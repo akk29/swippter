@@ -26,7 +26,6 @@ class BaseValidator(SingletonPattern):
         except PydanticValidationError as err:
             error_map = defaultdict(lambda: [])
             for error in json.loads(err.json()):
-                print(error)
                 err = error_map[error[F.LOC][0]]
                 err.append(
                     {

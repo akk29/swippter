@@ -2,9 +2,9 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 from pydantic_core import PydanticCustomError
 from app.core.exceptions import CUSTOM_CODE as CC
 from app.models.user import RoleEnum
+from app.pattern.factory.dao_factory import UserDAO
 from app.utils.utilities import F
 from app.validators.base_validator import BaseValidator
-from app.pattern.factory.dao_factory import UserDAO
 
 user_dao = UserDAO.get_instance()
 
@@ -37,9 +37,29 @@ class SignUpModel(BaseModel):
                 CC.get(CC.EMAIL_ALREADY_TAKEN),
                 F.EMAIL_ALREADY_TAKEN,
             )
+        return v.lower()
+    
+class SigninModel(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=32)
+    
+    @field_validator(F.EMAIL)
+    @classmethod
+    def validate_email(cls, v: str):        
+        user = user_dao.fetch_one(**{
+            F.EMAIL : v
+        })
+        if not user:
+            raise PydanticCustomError(
+                CC.get(CC.EMAIL_NOT_FOUND),
+                F.EMAIL_NOT_FOUND,
+            )
         return v
 
 class AuthValidator(BaseValidator):
 
     def signup_validator(self, data):
         self.validate(SignUpModel, data)
+    
+    def signin_validator(self, data):
+        self.validate(SigninModel, data)

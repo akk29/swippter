@@ -47,6 +47,6 @@ class IndexView(APIView):
 class RaiseErrorView(APIView):
 
     throttle_classes = [CustomRateThrottle]
-
+    
     def post(self, request):
         return index_service.raise_error_service()

@@ -1,6 +1,6 @@
-import json
 import bcrypt
 import hashlib
+import json
 import random
 import re
 from datetime import datetime
@@ -29,6 +29,7 @@ CASE CONVENTION FOR FILLER
 class FILLER:
     # Common or one time / non-context / Single word / Non Space literal
     A = "A"
+    ACCESS = "access"
     ADMIN = "admin"
     ADMIN_EMAIL = "ADMIN_EMAIL"
     ADMIN_PASSWORD = "ADMIN_PASSWORD"
@@ -40,6 +41,7 @@ class FILLER:
     EMAIL = "email"
     FIELD = "field"
     FIRST_NAME = "first_name"
+    GET_TOKEN = "get_token"
     IS_SUPERUSER = "is_superuser"
     IS_STAFF = "is_staff"
     IS_VERIFIED = "is_verified"
@@ -56,6 +58,7 @@ class FILLER:
     PUT = "PUT"
     PATCH = "PATCH"
     RECIEVER = "reciever"
+    REFRESH = "refresh"
     ROLE = "role"
     SALT = "salt"
     SENDER = "sender"
@@ -64,7 +67,9 @@ class FILLER:
     SUBJECT = "subject"
     SUPER_ADMIN = "super_admin"
     TYPE = "type"
+    TOKEN = "token"
     USERNAME = "username"
+    UUID = "uuid"
     VERSION = "version"
     V1 = "v1"
     UTF8 = "utf-8"
@@ -86,6 +91,7 @@ class FILLER:
     DATABASE_TEMPORARILY_UNAVAILABLE = "Database temporarily unavailable."
     DATABASE_ERROR_OCCURRED = "Database error occurred."
     INVALID_DATA_FORMAT = "Invalid data format."
+    INVALID_JSON = "Invalid JSON"
     VALIDATION_FAILED = "Validation Failed."
     CANNOT_DELETE_PROTECTED_RESOURCE = "Cannot delete protected resource."
     DATABASE_OPERATION_NOT_SUPPORRTED = "Database operation not supported."
@@ -96,6 +102,9 @@ class FILLER:
     USERNAME_NOT_ALLOWED = "Username not allowed"
     EMAIL_MUST_BE_SET = "The given email must be set"
     EMAIL_ALREADY_TAKEN = "The given email is already registered"
+    EMAIL_NOT_FOUND = "The given email doesn't exist in our system"
+    USER_NOT_FOUND = "The given user doesn't exist in our system"
+    INCORRECT_CREDENTIALS = "Incorrect credentials"
     INVALID_ROLE = "Role should have these values {}"
 
     # Logger msgs
@@ -126,7 +135,7 @@ class FILLER:
     CREATING_ADMIN_USER = "Creating admin user"
     ERROR_IN_ADMIN_EMAIL = "Error in admin email"
     ERROR_IN_ADMIN_PASSWORD = "Error in admin password"
-    INVALID_JSON = "Invalid JSON"
+
 
 
 F = FILLER
@@ -154,11 +163,11 @@ def generate_random_string():
 
 
 def generate_salt():
-    return bcrypt.gensalt()
+    return bcrypt.gensalt().decode()
 
 
 def generate_password_hash(password, salt):
-    return bcrypt.hashpw(password.encode(F.UTF8), salt)
+    return bcrypt.hashpw(password.encode(F.UTF8), salt.encode(F.UTF8)).decode(F.UTF8)
 
 
 def is_valid_email(email):
