@@ -23,6 +23,14 @@ from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
 from app.core.logging import Logger
 from app.utils.utilities import F, get_http_response, generate_random_string, get_item
+from rest_framework_simplejwt.exceptions import (
+    TokenError,
+    ExpiredTokenError,
+    InvalidToken,
+    TokenBackendError,
+    TokenBackendExpiredToken,
+    AuthenticationFailed,
+)
 
 logger = Logger.get_logger()
 
@@ -42,7 +50,6 @@ class ERROR_NAME:
     INTEGRITY_ERROR = "INTEGRITY_ERROR"
 
 
-
 # Application / Business Logic Based Errors
 class CUSTOM_CODE:
     EMAIL_MUST_BE_SET = "2886623e"
@@ -55,7 +62,7 @@ class CUSTOM_CODE:
     def get(cls, value):
         """Get variable name by its value"""
         for name, val in vars(cls).items():
-            if not name.startswith('_') and not callable(val) and val == value:
+            if not name.startswith("_") and not callable(val) and val == value:
                 return name
         return None
 
@@ -63,7 +70,14 @@ class CUSTOM_CODE:
 def process_library_exceptions(exc, context):
     response = exception_handler(exc, context)
 
-    if response is not None and response.status_code == S.HTTP_401_UNAUTHORIZED:        
+    ''' rest framework token related error interception '''
+    if any([True for _ in JWT_ERRORS_MAP.keys() if type(exc) == _]):
+        payload = JWT_ERRORS_MAP[type(exc)]
+        response.data = payload
+        return response
+
+    ''' DRF error interception and returning response '''
+    if response is not None and response.status_code == S.HTTP_401_UNAUTHORIZED:
         payload = {
             F.STATUS: S.HTTP_401_UNAUTHORIZED,
             F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
@@ -73,7 +87,7 @@ def process_library_exceptions(exc, context):
         }
         response.data = payload
         return response
-    
+
     if response is not None and response.status_code == S.HTTP_405_METHOD_NOT_ALLOWED:
         payload = {
             F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
@@ -154,6 +168,53 @@ EXCEPTION_ERROR_MAP = {
         F.NAME: ERROR_NAME.INTEGRITY_ERROR,
         F.CODE: S.HTTP_400_BAD_REQUEST,
         F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
+        F.ERRORS: [],
+    },
+}
+
+
+
+JWT_ERRORS_MAP = {
+    TokenError: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: S.HTTP_401_UNAUTHORIZED,
+        F.MSG: F.TOKEN_ERROR,
+        F.ERRORS: [],
+    },
+    ExpiredTokenError: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: S.HTTP_401_UNAUTHORIZED,
+        F.MSG: F.EXPIRED_TOKEN,
+        F.ERRORS: [],
+    },
+    InvalidToken: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: S.HTTP_401_UNAUTHORIZED,
+        F.MSG: F.INVALID_TOKEN,
+        F.ERRORS: [],
+    },
+    TokenBackendError: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: S.HTTP_401_UNAUTHORIZED,
+        F.MSG: F.TOKEN_BACKEND_ERROR,
+        F.ERRORS: [],
+    },
+    TokenBackendExpiredToken: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: S.HTTP_401_UNAUTHORIZED,
+        F.MSG: F.TOKEN_BACKEND_EXPIRED_ERROR,
+        F.ERRORS: [],
+    },
+    AuthenticationFailed: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: S.HTTP_401_UNAUTHORIZED,
+        F.MSG: F.AUTHENTICATION_FAILED,
         F.ERRORS: [],
     },
 }
@@ -408,9 +469,9 @@ def Exception500(request, *args, **kwargs):
 # COMMON MYSQL ERROR CODES
 # ============================================
 
-'''
+"""
 {'status': 400, 'name': 'INTEGRITY_ERROR', 'code': 400, 'msg': 'Data integrity constraint violated.', 'errors': (1062, "Duplicate entry 'hhc2@c.com' for key 'app_user.email'")}
-'''
+"""
 
 """
 MySQL Error Codes Reference:
