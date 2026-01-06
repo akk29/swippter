@@ -6,8 +6,9 @@ import re
 from datetime import datetime
 from django.http import HttpResponse
 from rest_framework import status as S
+from swippter.settings import FRONT_URL
 
-'''
+"""
 CASE CONVENTION FOR FILLER
 
 1. all small or large caps -> invert mapping
@@ -24,7 +25,8 @@ CASE CONVENTION FOR FILLER
     2. word -> "adMIN"
        Mapping -> adMIN = "adMIN"
 
-'''
+"""
+
 
 class FILLER:
     # Common or one time / non-context / Single word / Non Space literal
@@ -33,10 +35,14 @@ class FILLER:
     ADMIN = "admin"
     ADMIN_EMAIL = "ADMIN_EMAIL"
     ADMIN_PASSWORD = "ADMIN_PASSWORD"
+    AFTER = "after"
     APPLICATION_JSON = "application/json"
     BODY = "body"
     CODE = "code"
     CONSUMER = "consumer"
+    CREATED = "created"
+    DATA = "data"
+    DELETED = "deleted"
     ERRORS = "errors"
     EMAIL = "email"
     FIELD = "field"
@@ -54,23 +60,28 @@ class FILLER:
     MYSQL = "mysql"
     NAME = "name"
     PASSWORD = "password"
+    PATCH = "PATCH"
     POST = "POST"
     PUT = "PUT"
-    PATCH = "PATCH"
+    PK = "pk"
     RECIEVER = "reciever"
     REFRESH = "refresh"
+    RESET_PASSWORD = "reset_password"
     ROLE = "role"
     SALT = "salt"
     SENDER = "sender"
     SELLER = "seller"
     STATUS = "status"
     SUBJECT = "subject"
+    SUCCESS = "success"
     SUPER_ADMIN = "super_admin"
     TYPE = "type"
     TOKEN = "token"
     USERNAME = "username"
     UUID = "uuid"
+    UIDB64 = "uidb64"
     VERSION = "version"
+    UPDATED = "updated"
     V1 = "v1"
     UTF8 = "utf-8"
     Z = "Z"
@@ -106,6 +117,9 @@ class FILLER:
     USER_NOT_FOUND = "The given user doesn't exist in our system"
     INCORRECT_CREDENTIALS = "Incorrect credentials"
     INVALID_ROLE = "Role should have these values {}"
+    INVALID_USER = "Invalid user"
+    INVALID_RESET_TOKEN = "Invalid reset token"
+    NEW_PASSWORD_CANNOT_BE_SAME_AS_CURRENT_PASSWORD = "New password can't be same as current password"
 
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
@@ -149,10 +163,23 @@ F = FILLER
 
 
 def get_http_response(
-    payload=None, status=S.HTTP_200_OK, content_type=F.APPLICATION_JSON
+    payload={}, status=S.HTTP_200_OK, content_type=F.APPLICATION_JSON
 ):
     response = HttpResponse(
         json.dumps(payload), status=status, content_type=content_type
+    )
+    return response
+
+def get_http_response_msg(
+    payload={},
+    status=S.HTTP_200_OK,
+    content_type=F.APPLICATION_JSON,
+    message=F.SUCCESS,
+):
+    response = HttpResponse(
+        json.dumps({F.STATUS: status, F.MESSAGE: message, F.DATA: payload}),
+        status=status,
+        content_type=content_type,
     )
     return response
 
@@ -196,6 +223,11 @@ def get_item(arr, index):
     except IndexError:
         return None
 
+
 # def generate_token(user):
-#     payload = {F.ID : user.id , F.EMAIL  : user.email , F.ROLE : profileTyepMapping[int(user.profiletype)]}    
-#     return jwt.encode(payload,SECRET_KEY,algorithm=F.HS256).decode(F.UTF8) 
+#     payload = {F.ID : user.id , F.EMAIL  : user.email , F.ROLE : profileTyepMapping[int(user.profiletype)]}
+#     return jwt.encode(payload,SECRET_KEY,algorithm=F.HS256).decode(F.UTF8)
+
+
+def create_reset_message(uidb64, token):
+    return f""" Reset password : {FRONT_URL}/verify/{uidb64}/{token} """

@@ -1,8 +1,7 @@
 from rest_framework import serializers as rest_serializers
 from app.models.user import User, RoleEnum
-from rest_framework_simplejwt.tokens import RefreshToken
+from app.core.tokens import VersionOneRefreshToken
 from app.utils.utilities import F
-
 
 class UserSerializer(rest_serializers.ModelSerializer):
 
@@ -23,7 +22,25 @@ class UserSerializer(rest_serializers.ModelSerializer):
         ]
 
     def get_token(self, instance):
-        refresh = RefreshToken.for_user(instance)
+        refresh = VersionOneRefreshToken.for_user(instance)
+        return {
+            F.REFRESH: str(refresh),
+            F.ACCESS: str(refresh.access_token),
+        }
+
+
+class ForgotSerializer(rest_serializers.ModelSerializer):
+
+    token = rest_serializers.SerializerMethodField(F.GET_TOKEN)
+
+    class Meta:
+        model = User
+        fields = [
+            F.TOKEN,
+        ]
+
+    def get_token(self, instance):
+        refresh = VersionOneRefreshToken.for_user(instance)
         return {
             F.REFRESH: str(refresh),
             F.ACCESS: str(refresh.access_token),

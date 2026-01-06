@@ -26,6 +26,9 @@ CORS_ALLOW_METHODS = [*default_methods]
 ROOT_URLCONF = "swippter.urls"
 WSGI_APPLICATION = "swippter.wsgi.application"
 
+# Frontend Settings
+FRONT_URL = config("FRONT_URL")
+
 # Celery Broker Settings
 
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
@@ -64,6 +67,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_spectacular",
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     "app.config.AppConfig",
 ]
 
@@ -203,8 +207,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 AUTH_USER_MODEL = "app.User"
 
+# Reset Password Token Expiry Timeout 
+PASSWORD_RESET_TIMEOUT = 3600 # 1hr
+
 # EMAIL INTEGRATION
 TRIGGER_MAIL_SWITCH = config("TRIGGER_MAIL_SWITCH", cast=bool)
+INFO_EMAIL=config("INFO_EMAIL")
+RESET_EMAIL=config("RESET_EMAIL")
 EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")

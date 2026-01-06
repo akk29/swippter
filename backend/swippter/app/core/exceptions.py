@@ -57,6 +57,8 @@ class CUSTOM_CODE:
     EMAIL_NOT_FOUND = "45855239"
     PYDANTIC_VALIDATION = "09023855"
     INVALID_ROLE = "83905850"
+    INVALID_USER = "83905851"
+    INVALID_RESET_TOKEN = "83905852"
 
     @classmethod
     def get(cls, value):

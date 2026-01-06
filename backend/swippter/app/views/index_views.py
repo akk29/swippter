@@ -7,12 +7,13 @@ from app.core.throttlers import CustomRateThrottle
 from app.pattern.factory.service_factory import ServiceFactory
 from app.utils.utilities import (
     F,
-    get_http_response,
+    get_http_response_msg,
     my_etag_func,
     my_last_modified_func,
 )
 
 index_service = ServiceFactory.get_index_service()
+
 
 class IndexView(APIView):
 
@@ -24,29 +25,33 @@ class IndexView(APIView):
         name="dispatch",
     )
     def get(self, request):
-        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
+        response = get_http_response_msg({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def post(self, request):
-        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
+        response = get_http_response_msg(
+            {F.VERSION: F.V1, F.METHOD: request.method}, message=F.CREATED
+        )
         return response
 
     def put(self, request):
-        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
+        response = get_http_response_msg({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def patch(self, request):
-        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
+        response = get_http_response_msg({F.VERSION: F.V1, F.METHOD: request.method})
         return response
 
     def delete(self, request):
-        response = get_http_response({F.VERSION: F.V1, F.METHOD: request.method})
+        response = get_http_response_msg(
+            {F.VERSION: F.V1, F.METHOD: request.method}, message=F.DELETED
+        )
         return response
 
 
 class RaiseErrorView(APIView):
 
     throttle_classes = [CustomRateThrottle]
-    
+
     def post(self, request):
         return index_service.raise_error_service()

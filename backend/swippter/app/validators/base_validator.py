@@ -21,6 +21,12 @@ class BaseValidator(SingletonPattern):
             return CUSTOM_CODE.PYDANTIC_VALIDATION
 
     def validate_data(self):
+        '''
+        Docstring for validate_data
+        Raised Pydantic Error from Subclasses
+        Transforming those pydantic errors into general error handler
+        :param self: Description
+        '''
         try:
             self.model.model_validate(self.data, strict=True)
         except PydanticValidationError as err:
