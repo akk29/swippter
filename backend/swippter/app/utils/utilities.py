@@ -36,6 +36,7 @@ class FILLER:
     ADMIN_EMAIL = "ADMIN_EMAIL"
     ADMIN_PASSWORD = "ADMIN_PASSWORD"
     AFTER = "after"
+    ANON = "anon"
     APPLICATION_JSON = "application/json"
     BODY = "body"
     CODE = "code"
@@ -75,11 +76,13 @@ class FILLER:
     SUBJECT = "subject"
     SUCCESS = "success"
     SUPER_ADMIN = "super_admin"
-    TYPE = "type"
+    THROTTLE_LIMIT = "throttle_limit"
     TOKEN = "token"
+    TYPE = "type"
+    UIDB64 = "uidb64"
+    USER = "user"
     USERNAME = "username"
     UUID = "uuid"
-    UIDB64 = "uidb64"
     VERSION = "version"
     UPDATED = "updated"
     V1 = "v1"
@@ -96,11 +99,14 @@ class FILLER:
     UNAUTHORIZED = "Unauthorized"
     TOO_MANY_REQUESTS = "You have made too many requests. Please try again later. Retry after {} seconds"
     UNPROCESSABLE = "Unprocessable"
+    UNAVAILABLE = "Unavailable"
 
     # Database Error msgs
+    DATABASE_INTEGRITY_ERROR = "Data integrity error"
     DATA_INTEGRITY_CONSTRAINT_VOLIATED = "Data integrity constraint violated."
     DATABASE_TEMPORARILY_UNAVAILABLE = "Database temporarily unavailable."
     DATABASE_ERROR_OCCURRED = "Database error occurred."
+    DATABASE_DATA_ERROR = "Database data error"
     INVALID_DATA_FORMAT = "Invalid data format."
     INVALID_JSON = "Invalid JSON"
     VALIDATION_FAILED = "Validation Failed."
@@ -158,9 +164,13 @@ class FILLER:
     TOKEN_BACKEND_EXPIRED_ERROR = "TOKEN_BACKEND_EXPIRED_ERROR"
     AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED"
 
+    # Headers
+    X_RATELIMIT_LIMIT = "X-RateLimit-Limit"
+    X_RATELIMIT_REMAINING = "X-RateLimit-Remaining"
+    X_RATELIMIT_RESET = "X-RateLimit-Reset"
+
 
 F = FILLER
-
 
 def get_http_response(
     payload={}, status=S.HTTP_200_OK, content_type=F.APPLICATION_JSON

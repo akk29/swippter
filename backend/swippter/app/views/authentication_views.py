@@ -1,16 +1,16 @@
 from rest_framework import status as S
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.throttling import UserRateThrottle
-from rest_framework.views import APIView
+from app.core.throttlers import CustomRateThrottle
 from app.pattern.factory.service_factory import ServiceFactory
 from app.serializers.auth_serializers import UserSerializer, ForgotSerializer
 from app.utils.utilities import get_http_response_msg, F
-
+from app.views.base_api_view import BaseAPIView
+from django.core.exceptions import PermissionDenied
 auth_service = ServiceFactory.get_authentication_service()
-class SignupView(APIView):
+class SignupView(BaseAPIView):
 
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
         payload = JSONParser().parse(request)
@@ -21,9 +21,9 @@ class SignupView(APIView):
         )
         return http_response
 
-class SigninView(APIView):
+class SigninView(BaseAPIView):
 
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
         payload = JSONParser().parse(request)
@@ -32,9 +32,9 @@ class SigninView(APIView):
         http_response = get_http_response_msg(payload=serialized_data)
         return http_response
 
-class ForgotView(APIView):
+class ForgotView(BaseAPIView):
 
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
         payload = JSONParser().parse(request)
@@ -42,9 +42,9 @@ class ForgotView(APIView):
         http_response = get_http_response_msg()
         return http_response
 
-class VerifyTokenView(APIView):
+class VerifyTokenView(BaseAPIView):
 
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [CustomRateThrottle]
 
     def get(self, request, uidb64, token):
         response = auth_service.verify_token_service(
@@ -54,10 +54,10 @@ class VerifyTokenView(APIView):
         http_response = get_http_response_msg(payload=serialized_data)
         return http_response
 
-class ChangePasswordView(APIView):
+class ChangePasswordView(BaseAPIView):
 
-    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [CustomRateThrottle]
 
     def post(self, request):
         payload = JSONParser().parse(request)

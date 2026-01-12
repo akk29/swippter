@@ -6,8 +6,6 @@ from django.core.exceptions import (
     RequestAborted,
     ObjectDoesNotExist,
 )
-from django.urls import Resolver404, NoReverseMatch
-from django.http import UnreadablePostError, Http404
 from django.db import (
     DatabaseError,
     DataError,
@@ -17,12 +15,11 @@ from django.db import (
     ProgrammingError,
     NotSupportedError,
 )
-from django.utils.deprecation import MiddlewareMixin
+from django.http import UnreadablePostError, Http404
+from django.urls import Resolver404, NoReverseMatch
 from rest_framework import status as S
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
-from app.core.logging import Logger
-from app.utils.utilities import F, get_http_response, generate_random_string, get_item
 from rest_framework_simplejwt.exceptions import (
     TokenError,
     ExpiredTokenError,
@@ -31,6 +28,8 @@ from rest_framework_simplejwt.exceptions import (
     TokenBackendExpiredToken,
     AuthenticationFailed,
 )
+from app.core.logging import Logger
+from app.utils.utilities import F, get_http_response, generate_random_string, get_item
 
 logger = Logger.get_logger()
 
@@ -52,13 +51,30 @@ class ERROR_NAME:
 
 # Application / Business Logic Based Errors
 class CUSTOM_CODE:
+    
+    #D
+    DATABASE_TEMPORARILY_UNAVAILABLE = "23905853"
+    DATABASE_DATA_ERROR = "23905863"
+    DATABASE_INTEGRITY_ERROR = "23905873"
+    DATABASE_OPERATION_NOT_SUPPORRTED = "23905893"
+    DATABASE_INTERNAL_ERROR = "23905894"
+    DATABASE_ERROR = "23905895"
+    DATABASE_PROGRAMMING_ERROR = "23905896"
+
+    #E
     EMAIL_MUST_BE_SET = "2886623e"
-    EMAIL_ALREADY_TAKEN = "45855239"
-    EMAIL_NOT_FOUND = "45855239"
-    PYDANTIC_VALIDATION = "09023855"
+    EMAIL_ALREADY_TAKEN = "28855239"
+    EMAIL_NOT_FOUND = "28855239"
+    
+    #P
+    PYDANTIC_VALIDATION = "37023855"
+    
+    #I
     INVALID_ROLE = "83905850"
     INVALID_USER = "83905851"
     INVALID_RESET_TOKEN = "83905852"
+
+    
 
     @classmethod
     def get(cls, value):
@@ -71,14 +87,15 @@ class CUSTOM_CODE:
 
 def process_library_exceptions(exc, context):
     response = exception_handler(exc, context)
+    # request = context.get('request')
 
-    ''' rest framework token related error interception '''
+    ''' rest_framework_simplejwt related error interception '''
     if any([True for _ in JWT_ERRORS_MAP.keys() if type(exc) == _]):
         payload = JWT_ERRORS_MAP[type(exc)]
         response.data = payload
         return response
-
-    ''' DRF error interception and returning response '''
+    
+    ''' django-rest-framework error interception '''
     if response is not None and response.status_code == S.HTTP_401_UNAUTHORIZED:
         payload = {
             F.STATUS: S.HTTP_401_UNAUTHORIZED,
@@ -100,7 +117,7 @@ def process_library_exceptions(exc, context):
         }
         response.data = payload
         return response
-
+    
     if isinstance(exc, Throttled):
         wait_time = exc.wait
         payload = {
@@ -111,8 +128,31 @@ def process_library_exceptions(exc, context):
             F.ERRORS: [],
         }
         response = get_http_response(payload, payload[F.STATUS])
-    return response
+        return response
 
+    if isinstance(exc, DatabaseError):
+        for exc_type, config in DB_ERROR_MAP.items():
+            if isinstance(exc, exc_type):
+                exc = BaseError(
+                    *[],
+                    **{
+                        F.STATUS: config[F.STATUS],
+                        F.NAME: config[F.NAME],
+                        F.CODE: config[F.CODE],
+                        F.MSG: config[F.MSG],
+                        F.ERRORS: config[F.ERRORS] or exc.args,
+                    },
+                )
+
+    ''' Django internal error interception'''
+    if any([True for _ in EXCEPTION_ERROR_MAP.keys() if type(exc) == _]):
+        payload = EXCEPTION_ERROR_MAP[type(exc)]
+        response.data = payload
+        return response
+    
+    payload = ExceptionGenerator.process_exception(exc)
+    response = get_http_response(payload, payload[F.STATUS])
+    return response
 
 # ============================================
 # Django Framework Errors
@@ -127,7 +167,6 @@ Django Database Exception Hierarchy:
   ├── ProgrammingError (SQL programming errors)
   └── NotSupportedError (unsupported operations)
 """
-ERROR_MAP = {}
 
 EXCEPTION_ERROR_MAP = {
     PermissionDenied: {
@@ -155,14 +194,14 @@ EXCEPTION_ERROR_MAP = {
         F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
         F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
         F.CODE: S.HTTP_422_UNPROCESSABLE_ENTITY,
-        F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
+        F.MSG: F.UNPROCESSABLE,
         F.ERRORS: [],
     },
     BadRequest: {
         F.STATUS: S.HTTP_400_BAD_REQUEST,
         F.NAME: ERROR_NAME.INTEGRITY_ERROR,
         F.CODE: S.HTTP_400_BAD_REQUEST,
-        F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
+        F.MSG: F.BAD_REQUEST,
         F.ERRORS: [],
     },
     RequestAborted: {
@@ -173,8 +212,6 @@ EXCEPTION_ERROR_MAP = {
         F.ERRORS: [],
     },
 }
-
-
 
 JWT_ERRORS_MAP = {
     TokenError: {
@@ -224,9 +261,9 @@ JWT_ERRORS_MAP = {
 DB_ERROR_MAP = {
     IntegrityError: {
         F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
-        F.CODE: S.HTTP_400_BAD_REQUEST,
-        F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
+        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_INTEGRITY_ERROR,
+        F.MSG: F.DATABASE_INTEGRITY_ERROR,
         F.ERRORS: [],
     },
     # ProtectedError: {
@@ -239,69 +276,48 @@ DB_ERROR_MAP = {
     DataError: {
         F.STATUS: S.HTTP_400_BAD_REQUEST,
         F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
-        F.CODE: S.HTTP_400_BAD_REQUEST,
-        F.MSG: F.INVALID_DATA_FORMAT,
+        F.CODE: CUSTOM_CODE.DATABASE_DATA_ERROR,
+        F.MSG: F.DATABASE_DATA_ERROR,
         F.ERRORS: [],
     },
+    # DROP Database
     OperationalError: {
         F.STATUS: S.HTTP_503_SERVICE_UNAVAILABLE,
         F.NAME: ERROR_NAME.UNAVAILABLE_ERROR,
-        F.CODE: S.HTTP_503_SERVICE_UNAVAILABLE,
+        F.CODE: CUSTOM_CODE.DATABASE_TEMPORARILY_UNAVAILABLE,
         F.MSG: F.DATABASE_TEMPORARILY_UNAVAILABLE,
         F.ERRORS: [],
     },
+    # Voilate constraint
     DatabaseError: {
         F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
         F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_ERROR,
         F.MSG: F.DATABASE_ERROR_OCCURRED,
         F.ERRORS: [],
     },
     InternalError: {
         F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
         F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_INTERNAL_ERROR,
         F.MSG: F.INTERNAL_SERVER_ERROR,
         F.ERRORS: [],
     },
     ProgrammingError: {
         F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
         F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_PROGRAMMING_ERROR,
         F.MSG: F.DATABASE_PROGRAMMING_ERROR,
         F.ERRORS: [],
     },
     NotSupportedError: {
         F.STATUS: S.HTTP_501_NOT_IMPLEMENTED,
         F.NAME: ERROR_NAME.NOT_IMPLEMENTED_ERROR,
-        F.CODE: S.HTTP_501_NOT_IMPLEMENTED,
+        F.CODE: CUSTOM_CODE.DATABASE_OPERATION_NOT_SUPPORRTED,
         F.MSG: F.DATABASE_OPERATION_NOT_SUPPORRTED,
         F.ERRORS: [],
     },
 }
-
-ERROR_MAP.update(DB_ERROR_MAP)
-
-
-class ExceptionHandler(MiddlewareMixin):
-
-    def process_exception(self, request, exception):
-        if isinstance(exception, DatabaseError):
-            for exc_type, config in ERROR_MAP.items():
-                if isinstance(exception, exc_type):
-                    exception = BaseError(
-                        *[],
-                        **{
-                            F.STATUS: config[F.STATUS],
-                            F.NAME: config[F.NAME],
-                            F.CODE: config[F.CODE],
-                            F.MSG: config[F.MSG],
-                            F.ERRORS: config[F.ERRORS] or exception.args,
-                        },
-                    )
-        payload = ExceptionGenerator.process_exception(exception)
-        response = get_http_response(payload, payload[F.STATUS])
-        return response
 
 
 class ExceptionGenerator:
@@ -439,6 +455,16 @@ class UnprocessableError(BaseError):
             F.CODE: S.HTTP_422_UNPROCESSABLE_ENTITY,
             F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
             F.MSG: F.UNPROCESSABLE,
+        }
+        super().__init__(*[code, msg, errors], **kwargs)
+
+class ServiceUnavailableError(BaseError):
+    def __init__(self, code=None, msg=None, errors=None):
+        kwargs = {
+            F.STATUS: S.HTTP_503_SERVICE_UNAVAILABLE,
+            F.CODE: S.HTTP_503_SERVICE_UNAVAILABLE,
+            F.NAME: ERROR_NAME.UNAVAILABLE_ERROR,
+            F.MSG: F.UNAVAILABLE,
         }
         super().__init__(*[code, msg, errors], **kwargs)
 

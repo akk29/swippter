@@ -1,4 +1,3 @@
-import uuid
 from rest_framework_simplejwt.tokens import RefreshToken
 from app.utils.utilities import F
 
