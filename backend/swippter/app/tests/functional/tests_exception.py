@@ -1,6 +1,8 @@
 import unittest
 from rest_framework.exceptions import Throttled
 from django.db import DatabaseError
+from django.core.exceptions import PermissionDenied
+from rest_framework_simplejwt.exceptions import ExpiredTokenError
 from app.core.exceptions import (
     BadRequestError,
     ConflitError,
@@ -10,9 +12,11 @@ from app.core.exceptions import (
     MethodNotAllowedError,
     UnprocessableError,
     ExceptionGenerator,
+    ServiceUnavailableError,
     Exception500,
-    process_library_exceptions)
-
+    process_library_exceptions,
+)
+from rest_framework.exceptions import AuthenticationFailed
 
 class ExceptionTest(unittest.TestCase):
 
@@ -64,5 +68,23 @@ class ExceptionTest(unittest.TestCase):
         except ConflitError as e:
             self.assertEqual(ConflitError, type(e))
 
+    def test_service_unavailable(self):
+        try:
+            raise ServiceUnavailableError()
+        except ServiceUnavailableError as e:
+            self.assertEqual(ServiceUnavailableError, type(e))
+
     def test_exception_generator(self):
         ExceptionGenerator.error_generator()
+
+    def test_database_error(self):
+        process_library_exceptions(DatabaseError(), "")
+
+    def test_django_error(self):
+        process_library_exceptions(PermissionDenied(), "")
+
+    def test_jwt_error(self):
+        process_library_exceptions(ExpiredTokenError(), "")
+
+    def test_rest_framework_error(self):
+        process_library_exceptions(AuthenticationFailed(), "")
