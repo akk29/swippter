@@ -46,6 +46,7 @@ jobs:
         uv sync
     - name: GENERATE CODE COVERAGE
       run: |
+        .venv/scripts/activate
         cd backend/swippter
         python manage.py makemigrations
         python manage.py migrate
