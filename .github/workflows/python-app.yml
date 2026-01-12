@@ -3,11 +3,11 @@
 name: Python application
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
   workflow_dispatch:
-    branches: [ "master" ]
+    branches: [ "main" ]
 permissions:
   contents: read
 jobs:
@@ -19,26 +19,18 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.13.3"
+    - name: INSTALL UV
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
     - name: INSTALL DEPENDENCIES
       run: |
         cd backend
-        python -m pip install --upgrade pip
-        python install uv
-        # pip install flake8 pytest
         uv sync
-        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    # - name: LINT WITH FLAKE8
-    #   run: |
-    #     # stop the build if there are Python syntax errors or undefined names
-    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-    #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: TEST WITH PYTEST
-      run: |
-        pytest --junit-xml=junit.xml
     - name: GENERATE CODE COVERAGE
-      run : |
-        coverage run manage.py test
+      run: |
+        cd backend/swippter
+        uv run coverage run manage.py test
     - name: UPLOAD COVERAGE REPORTS TO CODECOV WITH GITHUB ACTION
       uses: codecov/codecov-action@v5
       with:
