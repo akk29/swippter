@@ -58,7 +58,7 @@ class UserDAO(BaseDAO):
     def authenticate_user(self, *args, **kwargs):
         user = self.fetch_one(**{F.EMAIL: kwargs[F.EMAIL].lower()})
         if not user:
-            raise UnprocessableError(
+            raise UnauthorizedError(
                 errors=[
                     {
                         F.FIELD: F.EMAIL,

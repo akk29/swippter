@@ -38,6 +38,12 @@ class SimpleTest(unittest.TestCase):
         response = client.get("/api/v1/raise-error")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def test_index_raise_error_success(self):
+        client = Client()
+        response = client.post("/api/v1/raise-error")
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
     def test_index(self):
         client = Client()
         response = client.get("/customer/index/")

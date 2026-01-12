@@ -3,7 +3,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from app.core.throttlers import CustomRateThrottle
 from app.pattern.factory.service_factory import ServiceFactory
-from app.serializers.auth_serializers import UserSerializer, ForgotSerializer
+from app.serializers.auth_serializers import UserSerializer, VerifyTokenSerializer
 from app.utils.utilities import get_http_response_msg, F
 from app.views.base_api_view import BaseAPIView
 from django.core.exceptions import PermissionDenied
@@ -50,7 +50,7 @@ class VerifyTokenView(BaseAPIView):
         response = auth_service.verify_token_service(
             **{F.UIDB64: uidb64, F.TOKEN: token}
         )
-        serialized_data = ForgotSerializer(response).data
+        serialized_data = VerifyTokenSerializer(response).data
         http_response = get_http_response_msg(payload=serialized_data)
         return http_response
 

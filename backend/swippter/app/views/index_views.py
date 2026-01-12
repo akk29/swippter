@@ -17,9 +17,6 @@ index_service = ServiceFactory.get_index_service()
 
 class IndexView(APIView):
 
-    throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated]
-
     @method_decorator(
         condition(etag_func=my_etag_func, last_modified_func=my_last_modified_func),
         name="dispatch",

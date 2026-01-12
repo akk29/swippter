@@ -240,4 +240,4 @@ def get_item(arr, index):
 
 
 def create_reset_message(uidb64, token):
-    return f""" Reset password : {FRONT_URL}/verify/{uidb64}/{token} """
+    return f""" Reset password : {FRONT_URL}/verify-token/{uidb64}/{token} """

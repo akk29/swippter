@@ -20,6 +20,7 @@ from django.urls import Resolver404, NoReverseMatch
 from rest_framework import status as S
 from rest_framework.exceptions import Throttled
 from rest_framework.views import exception_handler
+from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import (
     TokenError,
     ExpiredTokenError,
@@ -92,7 +93,7 @@ def process_library_exceptions(exc, context):
     ''' rest_framework_simplejwt related error interception '''
     if any([True for _ in JWT_ERRORS_MAP.keys() if type(exc) == _]):
         payload = JWT_ERRORS_MAP[type(exc)]
-        response.data = payload
+        response = Response(payload,status=payload[F.STATUS])
         return response
     
     ''' django-rest-framework error interception '''

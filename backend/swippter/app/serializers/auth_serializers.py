@@ -29,7 +29,7 @@ class UserSerializer(rest_serializers.ModelSerializer):
         }
 
 
-class ForgotSerializer(rest_serializers.ModelSerializer):
+class VerifyTokenSerializer(rest_serializers.ModelSerializer):
 
     token = rest_serializers.SerializerMethodField(F.GET_TOKEN)
 
