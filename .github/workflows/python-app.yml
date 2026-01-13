@@ -100,7 +100,7 @@ jobs:
     - name: GENERATE CODE COVERAGE via pytest
       working-directory: backend/swippter
       run: |
-        uv add pytest pytest-cov
+        uv pip install pytest pytest-cov
         pytest --cov --cov-branch --cov-report=xml    
     - name: UPLOAD COVERAGE REPORTS TO CODECOV WITH GITHUB ACTION
       uses: codecov/codecov-action@v5
