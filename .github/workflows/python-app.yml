@@ -96,13 +96,16 @@ jobs:
         uv run python manage.py makemigrations app
         uv run python manage.py makemigrations
         uv run python manage.py migrate
-        uv run coverage run manage.py test
-    - name: GENERATE CODE COVERAGE via pytest
+    - name: RUN TESTS AND GENERATE COVERAGE
       working-directory: backend/swippter
       run: |
-        uv pip install pytest pytest-cov pytest-django
-        uv run pytest --cov --cov-branch --cov-report=xml --ds=swippter.settings
-    - name: UPLOAD COVERAGE REPORTS TO CODECOV WITH GITHUB ACTION
+        uv run coverage run --source='.' manage.py test
+        uv run coverage xml
+    - name: UPLOAD COVERAGE REPORTS TO CODECOV
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./backend/swippter/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
