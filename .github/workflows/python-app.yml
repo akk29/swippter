@@ -63,6 +63,7 @@ jobs:
     - name: GENERATE CODE COVERAGE
       working-directory: backend/swippter
       run: |
+        uv run python manage.py makemigrations app
         uv run python manage.py makemigrations
         uv run python manage.py migrate
         uv run coverage run manage.py test
