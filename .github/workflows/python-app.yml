@@ -101,7 +101,7 @@ jobs:
       working-directory: backend/swippter
       run: |
         uv pip install pytest pytest-cov pytest-django
-        uv run pytest --cov --cov-branch --cov-report=xml --ds=swippter.settings
+        uv run pytest --cov --cov-branch --cov-report=xml --ds=swippter.settings --reuse-db
     - name: UPLOAD COVERAGE REPORTS TO CODECOV WITH GITHUB ACTION
       uses: codecov/codecov-action@v5
       with:
