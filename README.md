@@ -12,7 +12,6 @@
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
-- [Project Structure](#project-structure)
 - [Installation & Setup](#installation--setup)
 - [Running the Application](#running-the-application)
 - [Infrastructure Deployment](#infrastructure-deployment)
@@ -52,7 +51,7 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 **Backend:**
 - Python - 3.13
 - Django + DRF
-- MySQL (database)
+- MySQL (database) - 8.0
 - Redis (caching)
 - Celery/RabbitMQ (task queue)
 - UV - Package Manager
@@ -60,8 +59,8 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 **Frontend:**
 - React.js
 - TypeScript
-- Tailwind CSS / Material-UI
-- NodeJS - 22.
+- Tailwind CSS
+- NodeJS - 22.15.1
 - Bun - 1.3.4
 
 **Infrastructure:**
@@ -91,48 +90,6 @@ Before you begin, ensure you have the following installed:
 - **RAM:** 4GB minimum, 8GB recommended
 - **Disk Space:** 10GB free space
 
-## 📁 Project Structure
-
-```
-swippter/
-+---backend
-|   +---.venv
-|   |   +---Scripts
-|   +---swippter
-|       +---app
-|       |   +---core                    # backend core code
-|       |   +---management              # application run time commands
-|       |   |   +---commands
-|       |   +---migrations
-|       |   +---models                  # database models
-|       |   |   +---patterns            # patterns on database objects
-|       |   +---routes                  # application routes
-|       |   +---services                # backend services / business logic
-|       |   +---tests                   # test suite
-|       |   |   +---functional
-|       |   +---utils                   # utilities functions
-|       |   +---views                   # API views
-|       +---swippter
-+---frontend
-+---infra
-    +---config                          # config for services
-    +---docker                                  
-    |   +---dependencies                # backend dependencies docker file
-    |   +---server                      # server docker file
-    +---env                             # env file for services
-    +---kubernetes
-    |   +---mysql                       # mysql kubernetes file
-    |   +---nginx                       # nginx kubernetes file
-    |   +---rabbitmq                    # rabbitmq kubernetes file
-    |   +---redis                       # redis kubernetes file
-    |   +---server                      # server kubernetes file
-    +---manual
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── README.md
-└── SECURITY.md
-```
 
 ## 🚀 Installation & Setup
 
@@ -186,7 +143,8 @@ EMAIL_HOST="sandbox.smtp.mailtrap.io"
 EMAIL_HOST_USER="email_host_user"
 EMAIL_HOST_PASSWORD="email_host_password"
 EMAIL_PORT="25"
-
+# Frontend Settings
+FRONT_URL="http://localhost:8000"
 ```
 
 ```bash
@@ -235,42 +193,6 @@ uv sync
 # Go to project directory
 cd swippter
 
-# Run database migrations
-python manage.py makemigrations app
-python manage.py makemigrations
-python manage.py migrate app
-python manage.py migrate
-
-2025-12-08 19:52:39,803:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1597121486128
-2025-12-08 19:52:39,803:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-2025-12-08 19:52:39,810:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
-2025-12-08 19:52:39,814:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
-Operations to perform:
-  Apply all migrations: admin, auth, contenttypes, sessions
-Running migrations:
-  Applying contenttypes.0001_initial... OK
-  Applying auth.0001_initial... OK
-  Applying admin.0001_initial... OK
-  Applying admin.0002_logentry_remove_auto_add... OK
-  Applying admin.0003_logentry_add_action_flag_choices... OK
-  Applying contenttypes.0002_remove_content_type_name... OK
-  Applying auth.0002_alter_permission_name_max_length... OK
-  Applying auth.0003_alter_user_email_max_length... OK
-  Applying auth.0004_alter_user_username_opts... OK
-  Applying auth.0005_alter_user_last_login_null... OK
-  Applying auth.0006_require_contenttypes_0002... OK
-  Applying auth.0007_alter_validators_add_error_messages... OK
-  Applying auth.0008_alter_user_username_max_length... OK
-  Applying auth.0009_alter_user_last_name_max_length... OK
-  Applying auth.0010_alter_group_name_max_length... OK
-  Applying auth.0011_update_proxy_permissions... OK
-  Applying auth.0012_alter_user_first_name_max_length... OK
-  Applying sessions.0001_initial... OK
-
-# Create superuser (admin)
-python manage.py create_admin
-username: admin@admin.com
-password: test@1234
 ```
 
 #### Frontend
@@ -293,6 +215,12 @@ This is the easiest way to run the entire application stack.
 ```bash
 # Before running make sure to make .env and .mysql.env file in your local directory
 
+# make sure these are config valeus for backend env file while running via docker to make container networking connection properly
+# /backend/swippter/.env
+DBHOST="mysql"
+REDIS="redis://redis:6379"
+CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672/" 
+
 # From the project root directory
 cd infra/docker
 
@@ -313,7 +241,7 @@ docker-compose down -v
 ```
 
 **Services will be available at:**
-- Backend API: http://localhost
+- Backend API: http://localhost/api/v1/
 - API Docs: http://localhost/api/schema/swagger-ui/
 - Admin Panel: http://localhost/admin
 - MySQL: localhost:3306
@@ -334,8 +262,60 @@ source .venv/bin/activate  # Linux/Mac
 # Run Development server (before running make sure redis, rabbitmq and mysql are running)
 cd infra/docker
 docker compose up redis mysql rabbitmq --force-recreate
-python manage.py runserver
 
+cd backend/swippter
+.venv\scripts\activate # windows
+
+# Run database migrations
+python manage.py makemigrations app
+python manage.py makemigrations
+python manage.py migrate
+
+2026-01-13 23:20:53,482:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1701358784016
+2026-01-13 23:20:53,494:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+2026-01-13 23:20:53,501:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
+2026-01-13 23:20:53,502:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
+Operations to perform:
+  Apply all migrations: admin, app, auth, contenttypes, sessions, token_blacklist
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying app.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying sessions.0001_initial... OK
+  Applying token_blacklist.0001_initial... OK
+  Applying token_blacklist.0002_outstandingtoken_jti_hex... OK
+  Applying token_blacklist.0003_auto_20171017_2007... OK
+  Applying token_blacklist.0004_auto_20171017_2013... OK
+  Applying token_blacklist.0005_remove_outstandingtoken_jti... OK
+  Applying token_blacklist.0006_auto_20171017_2113... OK
+  Applying token_blacklist.0007_auto_20171017_2214... OK
+  Applying token_blacklist.0008_migrate_to_bigautofield... OK
+  Applying token_blacklist.0010_fix_migrate_to_bigautofield... OK
+  Applying token_blacklist.0011_linearizes_history... OK
+  Applying token_blacklist.0012_alter_outstandingtoken_user... OK
+  Applying token_blacklist.0013_alter_blacklistedtoken_options_and_more... OK
+
+
+# Create superuser (admin) visit http://localhost:8000/admin in browser
+python manage.py create_admin
+
+# run server
+python manage.py runserver
 2025-12-08 19:53:10,292:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1732918697264
 2025-12-08 19:53:10,293:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
 2025-12-08 19:53:10,310:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
@@ -357,7 +337,7 @@ For more information on production servers see: https://docs.djangoproject.com/e
 
 ```
 
-#### Start Frontend - IN_PROGRESS
+#### Start Frontend
 
 ```bash
 cd frontend
@@ -379,6 +359,8 @@ cd backend
 
 # Start Celery worker
 celery -A swippter.celery worker --pool=solo --detach --loglevel=info
+
+celery -A swippter.celery worker --pool=solo --loglevel=info # windows
 
 # Start Flower (Celery monitoring)
 celery -A swippter.celery flower --port=5555
@@ -429,6 +411,8 @@ EMAIL_HOST="sandbox.smtp.mailtrap.io"
 EMAIL_HOST_USER="email_host_user"
 EMAIL_HOST_PASSWORD="email_host_password"
 EMAIL_PORT="25"
+# Frontend Settings
+FRONT_URL="http://localhost:8000"
 ```
 
 
@@ -517,9 +501,10 @@ docker-compose exec redis redis-cli INFO
 
 Once the backend is running, access the interactive API documentation:
 
-- **Swagger UI**: http://localhost/docs
-- **ReDoc**: http://localhost/redoc
-- **OpenAPI JSON**: http://localhost/openapi.json
+- **Swagger UI**: http://localhost:8000/api/schema/swagger-ui/
+- **ReDoc**: http://localhost:8000/api/schema/redoc
+- **OpenAPI JSON**: http://localhost:8000/api/schema
+- **Admin Portal**: http://localhost:8000/admin
 
 ### Sample API Endpoints
 
@@ -527,103 +512,69 @@ Once the backend is running, access the interactive API documentation:
 # Health check / Check API
 curl http://localhost:8000/api/v1/
 
-# Browse products
-curl http://localhost:8000/api/v1/products
-
-# Get product by ID
-curl http://localhost:8000/api/v1/products/1
-
-# Create product (requires auth)
-curl -X POST http://localhost:8000/api/v1/products \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+# User signup
+curl -X POST http://localhost:8000/api/v1/signup \
   -H "Content-Type: application/json" \
-  -d '{"name":"T-Shirt","price":29.99}'
+  -d '{ "role" : 3, "first_name" : "test", "last_name" : "user", "email" : "a2@a.com", "password" : "test@123" } '
 
-# User registration
-curl -X POST http://localhost:8000/api/v1/auth/register \
+# User signin
+curl -X POST http://localhost:8000/api/v1/signin \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"secure123"}'
 
-# User login
-curl -X POST http://localhost:8000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"secure123"}'
-```
+# User signout
+curl --request POST \
+  --url http://localhost:8000/api/v1/signout \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "refresh": "string"
+}'
 
-## 🛠️ Development
+# User forget 
+curl --request POST \
+  --url http://localhost:8000/api/v1/forgot \
+  --header 'Authorization: Bearer bearerToken'
 
-### Database Migrations
+# User verify
+curl --request POST \
+  --url http://localhost:8000/api/v1/verify \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "token": "string"
+}'
 
-```bash
-cd backend
+# User refresh
+curl --request POST \
+  --url http://localhost:8000/api/v1/refresh \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "refresh": "string"
+}'
 
-# Create new migration
-python manage.py makemigrations
+# User verify-token
+curl --request POST \
+  --url http://localhost:8000/api/v1/verify \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "token": "string"
+}'
 
-# Apply migrations
-python manage.py migrate
+# User change-password
+curl --request POST \
+  --url http://localhost:8000/api/v1/change-password \
+  --header 'Authorization: Bearer bearerToken'
 
-# Rollback migration
-python manage.py migrate app_name migration_name
-
-# Show migrations
-python manage.py showmigrations
-```
-
-### Seed Database
-
-```bash
-cd backend
-
-# Load fixtures
-python manage.py loaddata fixtures/initial_data.json
-
-# Create sample data
-python manage.py seed_database
-
-# Clear database
-python manage.py flush
-```
-
-### Code Quality
-
-```bash
-# Backend linting
-cd backend
-flake8 .
-black .
-isort .
-pylint app/
-
-# Frontend linting
-cd frontend
-npm run lint
-npm run lint:fix
-npm run format
-```
-
-### Pre-commit Hooks
-
-```bash
-# Install pre-commit
-pip install pre-commit
-
-# Setup hooks
-pre-commit install
-
-# Run against all files
-pre-commit run --all-files
-```
 
 ## 🧪 Testing
 
 ### Backend Tests
 
 ```bash
-cd backend
+cd backend/swippter
 
 # Run all tests with coverage
 coverage run manage.py test
+coverage html -d coverage_html
 
 ```
 
@@ -647,17 +598,6 @@ npm run test:e2e
 npm test -- ProductCard.test.js
 ```
 
-### Integration Tests
-
-```bash
-# Run all integration tests
-cd tests/integration
-pytest -v
-
-# Test API endpoints
-pytest test_api_integration.py
-```
-
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -665,14 +605,16 @@ pytest test_api_integration.py
 #### Redis not running
 
 ```bash
-2025-12-08 19:34:07,229:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 2890361975248
-2025-12-08 19:34:07,229:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-2025-12-08 19:34:14,489:app.core.logging:CRITICAL - config:config.py:setup_redis:34 --- Redis connection error: Error 11001 connecting to redis:6379. getaddrinfo failed.
+2026-01-13 23:28:00,828:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 2009449615024
+2026-01-13 23:28:00,839:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+2026-01-13 23:28:04,894:app.core.logging:CRITICAL - config:config.py:setup_redis:34 --- Redis connection error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
 ```
 
 ```bash
 # Run redis 
 docker compose run redis
+# check in env and configure according to your environment
+REDIS="redis://localhost:6379"
 ```
 
 
@@ -687,9 +629,16 @@ docker compose run mysql
 #### Rabbitmq Connection Error
 
 ```bash
-# Run Rabbitmq
+# Error logs
 
-docker compose run mysql
+backend -> .env
+DEBUG=False # only then will be able to see this error on devlopment terminal
+
+raise ConnectionError(str(exc)) from exc
+kombu.exceptions.OperationalError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+# run rabbit
+docker compose run rabbitmq
 ```
 
 
