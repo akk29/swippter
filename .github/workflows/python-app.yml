@@ -45,11 +45,10 @@ jobs:
         cd backend
         uv sync
     - name: GENERATE CODE COVERAGE
+      working-directory: backend/swippter
       run: |
-        source .venv/bin/activate
-        cd backend/swippter
-        python manage.py makemigrations
-        python manage.py migrate
+        uv run python manage.py makemigrations
+        uv run python manage.py migrate
         uv run coverage run manage.py test
       env:
         # Database settings
