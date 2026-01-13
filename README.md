@@ -4,12 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.13-blue)](https://www.python.org/)
-[![Typescript](https://img.shields.io/badge/Typescript-3.13-green)](https://www.python.org/)
-[![Redis](https://img.shields.io/badge/Redis-3.13-green)](https://www.python.org/)
-[![Docker](https://img.shields.io/badge/Docker-3.13-green)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-3.13-green)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-3.13-green)](https://www.python.org/)
-
+[![Maintainability](https://qlty.sh/gh/akk29/projects/swippter/maintainability.svg)](https://qlty.sh/gh/akk29/projects/swippter)
+[![codecov](https://codecov.io/gh/akk29/swippter/graph/badge.svg?token=8AVEMH80AT)](https://codecov.io/gh/akk29/swippter)
 
 ## 📋 Table of Contents
 

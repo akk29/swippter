@@ -1,0 +1,111 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+name: Python application
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    branches: [ "main" ]
+env:
+        # Database settings
+        DB: ${{ secrets.DB }}
+        DATABASE: ${{ secrets.DATABASE }}
+        DBUSER: ${{ secrets.DBUSER }}
+        DBPASSWORD: ${{ secrets.DBPASSWORD }}
+        DBHOST: ${{ secrets.DBHOST }}
+        DBPORT: ${{ secrets.DBPORT }}
+        # Django framework settings
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DEBUG: ${{ secrets.DEBUG }}
+        THROTTLE_RATE: ${{ secrets.THROTTLE_RATE }}
+        # Admin user credentials
+        ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        # Redis settings
+        REDIS: ${{ secrets.REDIS }}
+        # Celery settings
+        CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
+        CELERY_TASK_SERIALIZER: ${{ secrets.CELERY_TASK_SERIALIZER }}
+        # Email settings
+        TRIGGER_MAIL_SWITCH: ${{ secrets.TRIGGER_MAIL_SWITCH }}
+        INFO_EMAIL: ${{ secrets.INFO_EMAIL }}
+        RESET_EMAIL: ${{ secrets.RESET_EMAIL }}
+        EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+        EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+        EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+        EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+        # Frontend settings
+        FRONT_URL: ${{ secrets.FRONT_URL }}
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: dev
+    
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      rabbitmq:
+        # Docker Hub image
+        image: rabbitmq:4.2-alpine
+        # Set health checks to wait until rabbitmq has started
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5672:5672
+          - 15672:15672
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: SET UP PYTHON 3.13.3
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.13.3"
+    - name: INSTALL UV
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+    - name: INSTALL DEPENDENCIES
+      run: |
+        cd backend
+        uv sync
+    - name: GENERATE CODE COVERAGE
+      working-directory: backend/swippter
+      run: |
+        uv run python manage.py makemigrations app
+        uv run python manage.py makemigrations
+        uv run python manage.py migrate
+    - name: RUN TESTS AND GENERATE COVERAGE
+      working-directory: backend/swippter
+      run: |
+        uv run coverage run --source='.' manage.py test
+        uv run coverage xml
+    - name: UPLOAD COVERAGE REPORTS TO CODECOV
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./backend/swippter/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
