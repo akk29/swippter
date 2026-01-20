@@ -10,17 +10,17 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
-- [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Running the Application](#running-the-application)
-- [Infrastructure Deployment](#infrastructure-deployment)
-- [API Documentation](#api-documentation)
-- [Development](#development)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+- [Architecture](#-architecture)
+- [Prerequisites](#-prerequisites)
+- [Installation & Setup](#-installation--setup)
+- [Running the Application](#-running-the-application)
+- [Infrastructure Deployment](#-infrastructure-deployment)
+- [API Documentation](#-api-documentation)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🎯 Overview
 
