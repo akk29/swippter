@@ -1,7 +1,7 @@
 import unittest
-from rest_framework.exceptions import Throttled
-from django.db import DatabaseError
 from django.core.exceptions import PermissionDenied
+from django.db import DatabaseError
+from rest_framework.exceptions import Throttled, AuthenticationFailed
 from rest_framework_simplejwt.exceptions import ExpiredTokenError
 from app.core.exceptions import (
     BadRequestError,
@@ -16,7 +16,6 @@ from app.core.exceptions import (
     Exception500,
     process_library_exceptions,
 )
-from rest_framework.exceptions import AuthenticationFailed
 
 class ExceptionTest(unittest.TestCase):
 

@@ -3,13 +3,13 @@ import unittest
 import random
 from django.test import Client
 from rest_framework import status as S
-from app.dao.user_dao import UserDAO
-from app.utils.utilities import F
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.management import call_command
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from app.core.celery_tasks import trigger_mail_backround
+from app.dao.user_dao import UserDAO
+from app.utils.utilities import F
 
 class SimpleTest(unittest.TestCase):
 
