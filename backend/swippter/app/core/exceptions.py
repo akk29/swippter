@@ -18,7 +18,19 @@ from django.db import (
 from django.http import UnreadablePostError, Http404
 from django.urls import Resolver404, NoReverseMatch
 from rest_framework import status as S
-from rest_framework.exceptions import Throttled
+from rest_framework.exceptions import (
+    APIException as DRFAPIException,
+    ValidationError as DRFValidationError,
+    ParseError as DRFParseError,
+    AuthenticationFailed as DRFAuthenticationFailed,
+    NotAuthenticated as DRFNotAuthenticated,
+    PermissionDenied as DRFPermissionDenied,
+    NotFound as DRFNotFound,
+    MethodNotAllowed as DRFMethodNotAllowed,
+    NotAcceptable as DRFNotAcceptable,
+    UnsupportedMediaType as DRFUnsupportedMediaType,
+    Throttled as DRFThrottled,
+)
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import (
@@ -39,21 +51,23 @@ class ERROR_NAME:
     BAD_REQUEST_ERROR = "BAD_REQUEST_ERROR"
     CONFLICT_ERROR = "CONFLICT_ERROR"
     FORBIDDEN_ERROR = "FORBIDDEN_ERROR"
-    METHOD_NOT_ALLOWED_ERROR = "METHOD_NOT_ALLOWED_ERROR"
-    NOT_FOUND_ERROR = "NOT_FOUND_ERROR"
-    UNAUTHORIZED_ERROR = "UNAUTHORIZED_ERROR"
-    UNPROCESSABLE_ERROR = "UNPROCESSABLE_ERROR"
-    TOO_MANY_REQUESTS_ERROR = "TOO_MANY_REQUESTS_ERROR"
     INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
-    UNAVAILABLE_ERROR = "UNAVAILABLE_ERROR"
-    NOT_IMPLEMENTED_ERROR = "NOT_IMPLEMENTED_ERROR"
     INTEGRITY_ERROR = "INTEGRITY_ERROR"
+    METHOD_NOT_ALLOWED_ERROR = "METHOD_NOT_ALLOWED_ERROR"
+    NOT_ACCEPTABLE = "NOT_ACCEPTABLE"
+    NOT_FOUND_ERROR = "NOT_FOUND_ERROR"
+    NOT_IMPLEMENTED_ERROR = "NOT_IMPLEMENTED_ERROR"
+    TOO_MANY_REQUESTS_ERROR = "TOO_MANY_REQUESTS_ERROR"
+    UNAUTHORIZED_ERROR = "UNAUTHORIZED_ERROR"
+    UNAVAILABLE_ERROR = "UNAVAILABLE_ERROR"
+    UNPROCESSABLE_ERROR = "UNPROCESSABLE_ERROR"
+    UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE"
 
 
 # Application / Business Logic Based Errors
 class CUSTOM_CODE:
-    
-    #D
+
+    # D
     DATABASE_TEMPORARILY_UNAVAILABLE = "23905853"
     DATABASE_DATA_ERROR = "23905863"
     DATABASE_INTEGRITY_ERROR = "23905873"
@@ -62,20 +76,31 @@ class CUSTOM_CODE:
     DATABASE_ERROR = "23905895"
     DATABASE_PROGRAMMING_ERROR = "23905896"
 
-    #E
+    # Django Rest Framework Exceptions
+    DRF_API_EXCEPTION = "24905853"
+    DRF_VALIDATION_EXCEPTION = "24905854"
+    DRF_PARSE_ERROR = "24905855"
+    DRF_AUTHENTICATION_FAILED = "24905856"
+    DRF_NOT_AUTHENTICATED = "24905857"
+    DRF_PERMISSION_DENIED = "24905858"
+    DRF_NOT_FOUND = "24905859"
+    DRF_METHOD_NOT_ALLOWED = "24905860"
+    DRF_NOT_ACCEPTABLE = "24905861"
+    DRF_UNSUPPORTED_MEDIA_TYPE = "24905862"
+    DRF_THROTTLED = "24905863"
+
+    # E
     EMAIL_MUST_BE_SET = "2886623e"
     EMAIL_ALREADY_TAKEN = "28855239"
     EMAIL_NOT_FOUND = "28855239"
-    
-    #P
+
+    # P
     PYDANTIC_VALIDATION = "37023855"
-    
-    #I
+
+    # I
     INVALID_ROLE = "83905850"
     INVALID_USER = "83905851"
     INVALID_RESET_TOKEN = "83905852"
-
-    
 
     @classmethod
     def get(cls, value):
@@ -90,44 +115,26 @@ def process_library_exceptions(exc, context):
     response = exception_handler(exc, context)
     # request = context.get('request')
 
-    ''' rest_framework_simplejwt related error interception '''
+    """ rest_framework_simplejwt related error interception """
     if any([True for _ in JWT_ERRORS_MAP.keys() if type(exc) == _]):
         payload = JWT_ERRORS_MAP[type(exc)]
-        response = Response(payload,status=payload[F.STATUS])
-        return response
-    
-    ''' django-rest-framework error interception '''
-    if response is not None and response.status_code == S.HTTP_401_UNAUTHORIZED:
-        payload = {
-            F.STATUS: S.HTTP_401_UNAUTHORIZED,
-            F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-            F.CODE: S.HTTP_401_UNAUTHORIZED,
-            F.MSG: F.UNAUTHORIZED,
-            F.ERRORS: [],
-        }
-        response.data = payload
+        response = Response(payload, status=payload[F.STATUS])
         return response
 
-    if response is not None and response.status_code == S.HTTP_405_METHOD_NOT_ALLOWED:
-        payload = {
-            F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
-            F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
-            F.CODE: S.HTTP_405_METHOD_NOT_ALLOWED,
-            F.MSG: F.METHOD_NOT_ALLOWED,
-            F.ERRORS: [],
-        }
-        response.data = payload
-        return response
-    
-    if isinstance(exc, Throttled):
-        wait_time = exc.wait
-        payload = {
-            F.STATUS: S.HTTP_429_TOO_MANY_REQUESTS,
-            F.NAME: ERROR_NAME.TOO_MANY_REQUESTS_ERROR,
-            F.CODE: S.HTTP_429_TOO_MANY_REQUESTS,
-            F.MSG: F.TOO_MANY_REQUESTS.format(wait_time),
-            F.ERRORS: [],
-        }
+    """ django-rest-framework error interception """
+    if isinstance(exc, DRFAPIException):
+        if isinstance(exc, DRFThrottled):
+            wait_time = exc.wait
+            payload = {
+                F.STATUS: S.HTTP_429_TOO_MANY_REQUESTS,
+                F.NAME: ERROR_NAME.TOO_MANY_REQUESTS_ERROR,
+                F.CODE: S.HTTP_429_TOO_MANY_REQUESTS,
+                F.MSG: F.TOO_MANY_REQUESTS.format(wait_time),
+                F.ERRORS: [],
+            }
+            response = get_http_response(payload, payload[F.STATUS])
+            return response        
+        payload = DRF_EXCEPTION_MAP[type(exc)]
         response = get_http_response(payload, payload[F.STATUS])
         return response
 
@@ -145,29 +152,21 @@ def process_library_exceptions(exc, context):
                     },
                 )
 
-    ''' Django internal error interception'''
+    """ Django internal error interception"""
     if any([True for _ in EXCEPTION_ERROR_MAP.keys() if type(exc) == _]):
         payload = EXCEPTION_ERROR_MAP[type(exc)]
         response.data = payload
         return response
-    
+
+    # Only for database errors
     payload = ExceptionGenerator.process_exception(exc)
     response = get_http_response(payload, payload[F.STATUS])
     return response
 
+
 # ============================================
 # Django Framework Errors
 # ============================================
-"""
-Django Database Exception Hierarchy:
-- DatabaseError (base class)
-  ├── DataError (data processing errors)
-  ├── OperationalError (database operational errors)
-  ├── IntegrityError (constraint violations) # Unique, Foreign Key, Not Null
-  ├── InternalError (internal database errors)
-  ├── ProgrammingError (SQL programming errors)
-  └── NotSupportedError (unsupported operations)
-"""
 
 EXCEPTION_ERROR_MAP = {
     PermissionDenied: {
@@ -259,6 +258,17 @@ JWT_ERRORS_MAP = {
     },
 }
 
+"""
+Django Database Exception Hierarchy:
+- DatabaseError (base class)
+  ├── DataError (data processing errors)
+  ├── OperationalError (database operational errors)
+  ├── IntegrityError (constraint violations) # Unique, Foreign Key, Not Null
+  ├── InternalError (internal database errors)
+  ├── ProgrammingError (SQL programming errors)
+  └── NotSupportedError (unsupported operations)
+"""
+
 DB_ERROR_MAP = {
     IntegrityError: {
         F.STATUS: S.HTTP_400_BAD_REQUEST,
@@ -320,11 +330,92 @@ DB_ERROR_MAP = {
     },
 }
 
+""" DJANGO REST FRAMEWORK MAPPING"""
+DRF_EXCEPTION_MAP = {
+    DRFAPIException: {
+        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_API_EXCEPTION,
+        F.MSG: F.INTERNAL_SERVER_ERROR,
+        F.ERRORS: [],
+    },
+    DRFValidationError: {
+        F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
+        F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_VALIDATION_EXCEPTION,
+        F.MSG: F.UNPROCESSABLE,
+        F.ERRORS: [],
+    },
+    DRFParseError: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_PARSE_ERROR,
+        F.MSG: F.PARSE_ERROR,
+        F.ERRORS: [],
+    },
+    DRFAuthenticationFailed: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_AUTHENTICATION_FAILED,
+        F.MSG: F.UNAUTHORIZED,
+        F.ERRORS: [],
+    },
+    DRFPermissionDenied : {
+        F.STATUS: S.HTTP_403_FORBIDDEN,
+        F.NAME: ERROR_NAME.FORBIDDEN_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_PERMISSION_DENIED,
+        F.MSG: F.FORBIDDEN,
+        F.ERRORS: [],
+    },
+    DRFNotFound: {
+        F.STATUS: S.HTTP_404_NOT_FOUND,
+        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_NOT_FOUND,
+        F.MSG: F.NOT_FOUND,
+        F.ERRORS: [],
+    },
+    DRFNotAuthenticated: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_NOT_AUTHENTICATED,
+        F.MSG: F.UNAUTHORIZED,
+        F.ERRORS: [],
+    },
+    DRFMethodNotAllowed: {
+        F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
+        F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_METHOD_NOT_ALLOWED,
+        F.MSG: F.METHOD_NOT_ALLOWED,
+        F.ERRORS: [],
+    },
+    DRFNotAcceptable: {
+        F.STATUS: S.HTTP_406_NOT_ACCEPTABLE,
+        F.NAME: ERROR_NAME.NOT_ACCEPTABLE,
+        F.CODE: CUSTOM_CODE.DRF_NOT_ACCEPTABLE,
+        F.MSG: F.NOT_ACCEPTABLE,
+        F.ERRORS: [],
+    },
+    DRFUnsupportedMediaType: {
+        F.STATUS: S.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        F.NAME: ERROR_NAME.UNSUPPORTED_MEDIA_TYPE,
+        F.CODE: CUSTOM_CODE.DRF_UNSUPPORTED_MEDIA_TYPE,
+        F.MSG: F.UNSUPPORTED_MEDIA_TYPE,
+        F.ERRORS: [],
+    }
+}
+
 
 class ExceptionGenerator:
 
     @staticmethod
     def process_exception(error):
+        ''' This method helps to create response structure from Custom Error Neatly        
+        app.core.middleware.JSONValidationMiddleware        
+        exception = UnprocessableError(errors=[{F.BODY: F.INVALID_JSON}])
+        payload = ExceptionGenerator.process_exception(exception)
+        response = get_http_response(payload, payload[F.STATUS])
+        return response        
+        '''
         return {
             F.STATUS: error.status,
             F.NAME: error.name,
@@ -458,6 +549,7 @@ class UnprocessableError(BaseError):
             F.MSG: F.UNPROCESSABLE,
         }
         super().__init__(*[code, msg, errors], **kwargs)
+
 
 class ServiceUnavailableError(BaseError):
     def __init__(self, code=None, msg=None, errors=None):

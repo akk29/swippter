@@ -95,11 +95,14 @@ class FILLER:
     METHOD_NOT_ALLOWED = "Method not allowed"
     INTERNAL_SERVER_ERROR = "Internal Server Error"
     NOT_FOUND = "Not found"
+    NOT_ACCEPTABLE = "Not Acceptable"
     FORBIDDEN = "Forbidden"
     UNAUTHORIZED = "Unauthorized"
+    PARSE_ERROR = "Parse Error"
     TOO_MANY_REQUESTS = "You have made too many requests. Please try again later. Retry after {} seconds"
     UNPROCESSABLE = "Unprocessable"
     UNAVAILABLE = "Unavailable"
+    UNSUPPORTED_MEDIA_TYPE = "Unsupported Media Type"
 
     # Database Error msgs
     DATABASE_INTEGRITY_ERROR = "Data integrity error"

@@ -6,7 +6,6 @@ from app.pattern.factory.service_factory import ServiceFactory
 from app.serializers.auth_serializers import UserSerializer, VerifyTokenSerializer
 from app.utils.utilities import get_http_response_msg, F
 from app.views.base_api_view import BaseAPIView
-from django.core.exceptions import PermissionDenied
 auth_service = ServiceFactory.get_authentication_service()
 class SignupView(BaseAPIView):
 
