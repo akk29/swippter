@@ -28,6 +28,12 @@ services:
             - static_volume:/app/swippter/static-files
         expose:
             - 8000   
+        environment:
+            - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
+            - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=grpc://otel-collector:4317
+            - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=grpc://otel-collector:4317
+            - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+            - OTEL_EXPORTER_OTLP_INSECURE=true
         depends_on:
             redis:
                 condition: service_started
@@ -81,5 +87,45 @@ services:
       depends_on:
         redis : 
             condition: service_started
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib
+        container_name: otel-collector
+        command: [ "--config=/etc/otelcol/config.yaml" ]
+        volumes:
+            - ./otel-collector-config.yaml:/etc/otelcol/config.yaml
+        ports:
+            - "4317:4317"
+            - "4318:4318"
+    promtail:
+        image: grafana/promtail
+        container_name: promtail
+        volumes:
+            - ./promtail-config.yaml:/etc/promtail/config.yml
+            - /var/lib/docker/containers:/var/lib/docker/containers:ro
+            - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - loki
+    loki:
+        image: grafana/loki
+        container_name: loki
+        ports:
+            - "3100:3100"
+    tempo:
+        image: grafana/tempo
+        container_name: tempo
+        ports:
+            - "3200:3200"
+        command:
+            - "--storage.trace.backend=local"
+            - "--storage.trace.local.path=/tmp/tempo"
+    grafana:
+        image: grafana/grafana
+        container_name: grafana
+        ports:
+            - "3000:3000"
+        depends_on:
+            - loki
+            - tempo
+            - otel-collector
 volumes:
     static_volume: {}
