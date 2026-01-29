@@ -19,17 +19,17 @@ from django.http import UnreadablePostError, Http404
 from django.urls import Resolver404, NoReverseMatch
 from rest_framework import status as S
 from rest_framework.exceptions import (
-    APIException as DRFAPIException,
-    ValidationError as DRFValidationError,
-    ParseError as DRFParseError,
-    AuthenticationFailed as DRFAuthenticationFailed,
-    NotAuthenticated as DRFNotAuthenticated,
-    PermissionDenied as DRFPermissionDenied,
-    NotFound as DRFNotFound,
-    MethodNotAllowed as DRFMethodNotAllowed,
-    NotAcceptable as DRFNotAcceptable,
-    UnsupportedMediaType as DRFUnsupportedMediaType,
-    Throttled as DRFThrottled,
+    APIException as DRF_APIException,
+    ValidationError as DRF_ValidationError,
+    ParseError as DRF_ParseError,
+    AuthenticationFailed as DRF_AuthenticationFailed,
+    NotAuthenticated as DRF_NotAuthenticated,
+    PermissionDenied as DRF_PermissionDenied,
+    NotFound as DRF_NotFound,
+    MethodNotAllowed as DRF_MethodNotAllowed,
+    NotAcceptable as DRF_NotAcceptable,
+    UnsupportedMediaType as DRF_UnsupportedMediaType,
+    Throttled as DRF_Throttled,
 )
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
@@ -76,7 +76,7 @@ class CUSTOM_CODE:
     DATABASE_ERROR = "23905895"
     DATABASE_PROGRAMMING_ERROR = "23905896"
 
-    # Django Rest Framework Exceptions
+    # Django Rest Framework Exceptions code
     DRF_API_EXCEPTION = "24905853"
     DRF_VALIDATION_EXCEPTION = "24905854"
     DRF_PARSE_ERROR = "24905855"
@@ -88,6 +88,14 @@ class CUSTOM_CODE:
     DRF_NOT_ACCEPTABLE = "24905861"
     DRF_UNSUPPORTED_MEDIA_TYPE = "24905862"
     DRF_THROTTLED = "24905863"
+
+    # simple_jwt Exceptions code
+    JWT_TOKEN_ERROR = "24505861"
+    JWT_EXPIRED_TOKEN_ERROR = "24505862"
+    JWT_INVALID_TOKEN = "24505863"
+    JWT_TOKEN_BACKEND_ERROR = "24505864"
+    JWT_TOKEN_BACKEND_EXPIRED_TOKEN = "24505865"
+    JWT_AUTHENTICATION_FAILED = "24505866"
 
     # E
     EMAIL_MUST_BE_SET = "2886623e"
@@ -122,8 +130,8 @@ def process_library_exceptions(exc, context):
         return response
 
     """ django-rest-framework error interception """
-    if isinstance(exc, DRFAPIException):
-        if isinstance(exc, DRFThrottled):
+    if isinstance(exc, DRF_APIException):
+        if isinstance(exc, DRF_Throttled):
             wait_time = exc.wait
             payload = {
                 F.STATUS: S.HTTP_429_TOO_MANY_REQUESTS,
@@ -133,7 +141,7 @@ def process_library_exceptions(exc, context):
                 F.ERRORS: [],
             }
             response = get_http_response(payload, payload[F.STATUS])
-            return response        
+            return response
         payload = DRF_EXCEPTION_MAP[type(exc)]
         response = get_http_response(payload, payload[F.STATUS])
         return response
@@ -141,281 +149,39 @@ def process_library_exceptions(exc, context):
     if isinstance(exc, DatabaseError):
         for exc_type, config in DB_ERROR_MAP.items():
             if isinstance(exc, exc_type):
-                exc = BaseError(
-                    *[],
-                    **{
-                        F.STATUS: config[F.STATUS],
-                        F.NAME: config[F.NAME],
-                        F.CODE: config[F.CODE],
-                        F.MSG: config[F.MSG],
-                        F.ERRORS: config[F.ERRORS] or exc.args,
-                    },
-                )
+                payload = {
+                    F.STATUS: config[F.STATUS],
+                    F.NAME: config[F.NAME],
+                    F.CODE: config[F.CODE],
+                    F.MSG: config[F.MSG],
+                    F.ERRORS: [],
+                }
+                response = get_http_response(payload, payload[F.STATUS])
+                return response
 
     """ Django internal error interception"""
     if any([True for _ in EXCEPTION_ERROR_MAP.keys() if type(exc) == _]):
         payload = EXCEPTION_ERROR_MAP[type(exc)]
         response.data = payload
         return response
-
-    # Only for database errors
+    
+    """ System Defined Error Handling """
     payload = ExceptionGenerator.process_exception(exc)
     response = get_http_response(payload, payload[F.STATUS])
     return response
-
-
-# ============================================
-# Django Framework Errors
-# ============================================
-
-EXCEPTION_ERROR_MAP = {
-    PermissionDenied: {
-        F.STATUS: S.HTTP_403_FORBIDDEN,
-        F.NAME: ERROR_NAME.FORBIDDEN_ERROR,
-        F.CODE: S.HTTP_403_FORBIDDEN,
-        F.MSG: F.FORBIDDEN,
-        F.ERRORS: [],
-    },
-    FieldError: {
-        F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
-        F.CODE: S.HTTP_400_BAD_REQUEST,
-        F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
-        F.ERRORS: [],
-    },
-    ObjectDoesNotExist: {
-        F.STATUS: S.HTTP_404_NOT_FOUND,
-        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
-        F.CODE: S.HTTP_404_NOT_FOUND,
-        F.MSG: F.NOT_FOUND,
-        F.ERRORS: [],
-    },
-    ValidationError: {
-        F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
-        F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
-        F.CODE: S.HTTP_422_UNPROCESSABLE_ENTITY,
-        F.MSG: F.UNPROCESSABLE,
-        F.ERRORS: [],
-    },
-    BadRequest: {
-        F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
-        F.CODE: S.HTTP_400_BAD_REQUEST,
-        F.MSG: F.BAD_REQUEST,
-        F.ERRORS: [],
-    },
-    RequestAborted: {
-        F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
-        F.CODE: S.HTTP_400_BAD_REQUEST,
-        F.MSG: F.DATA_INTEGRITY_CONSTRAINT_VOLIATED,
-        F.ERRORS: [],
-    },
-}
-
-JWT_ERRORS_MAP = {
-    TokenError: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: S.HTTP_401_UNAUTHORIZED,
-        F.MSG: F.TOKEN_ERROR,
-        F.ERRORS: [],
-    },
-    ExpiredTokenError: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: S.HTTP_401_UNAUTHORIZED,
-        F.MSG: F.EXPIRED_TOKEN,
-        F.ERRORS: [],
-    },
-    InvalidToken: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: S.HTTP_401_UNAUTHORIZED,
-        F.MSG: F.INVALID_TOKEN,
-        F.ERRORS: [],
-    },
-    TokenBackendError: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: S.HTTP_401_UNAUTHORIZED,
-        F.MSG: F.TOKEN_BACKEND_ERROR,
-        F.ERRORS: [],
-    },
-    TokenBackendExpiredToken: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: S.HTTP_401_UNAUTHORIZED,
-        F.MSG: F.TOKEN_BACKEND_EXPIRED_ERROR,
-        F.ERRORS: [],
-    },
-    AuthenticationFailed: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: S.HTTP_401_UNAUTHORIZED,
-        F.MSG: F.AUTHENTICATION_FAILED,
-        F.ERRORS: [],
-    },
-}
-
-"""
-Django Database Exception Hierarchy:
-- DatabaseError (base class)
-  ├── DataError (data processing errors)
-  ├── OperationalError (database operational errors)
-  ├── IntegrityError (constraint violations) # Unique, Foreign Key, Not Null
-  ├── InternalError (internal database errors)
-  ├── ProgrammingError (SQL programming errors)
-  └── NotSupportedError (unsupported operations)
-"""
-
-DB_ERROR_MAP = {
-    IntegrityError: {
-        F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_INTEGRITY_ERROR,
-        F.MSG: F.DATABASE_INTEGRITY_ERROR,
-        F.ERRORS: [],
-    },
-    # ProtectedError: {
-    #     F.STATUS: S.HTTP_409_CONFLICT,
-    #     F.NAME: ERROR_NAME.CONFLICT_ERROR,
-    #     F.CODE: S.HTTP_409_CONFLICT,
-    #     F.MSG: F.CANNOT_DELETE_PROTECTED_RESOURCE,
-    #     F.ERRORS: [],
-    # },
-    DataError: {
-        F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_DATA_ERROR,
-        F.MSG: F.DATABASE_DATA_ERROR,
-        F.ERRORS: [],
-    },
-    # DROP Database
-    OperationalError: {
-        F.STATUS: S.HTTP_503_SERVICE_UNAVAILABLE,
-        F.NAME: ERROR_NAME.UNAVAILABLE_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_TEMPORARILY_UNAVAILABLE,
-        F.MSG: F.DATABASE_TEMPORARILY_UNAVAILABLE,
-        F.ERRORS: [],
-    },
-    # Voilate constraint
-    DatabaseError: {
-        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
-        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_ERROR,
-        F.MSG: F.DATABASE_ERROR_OCCURRED,
-        F.ERRORS: [],
-    },
-    InternalError: {
-        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
-        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_INTERNAL_ERROR,
-        F.MSG: F.INTERNAL_SERVER_ERROR,
-        F.ERRORS: [],
-    },
-    ProgrammingError: {
-        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
-        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_PROGRAMMING_ERROR,
-        F.MSG: F.DATABASE_PROGRAMMING_ERROR,
-        F.ERRORS: [],
-    },
-    NotSupportedError: {
-        F.STATUS: S.HTTP_501_NOT_IMPLEMENTED,
-        F.NAME: ERROR_NAME.NOT_IMPLEMENTED_ERROR,
-        F.CODE: CUSTOM_CODE.DATABASE_OPERATION_NOT_SUPPORRTED,
-        F.MSG: F.DATABASE_OPERATION_NOT_SUPPORRTED,
-        F.ERRORS: [],
-    },
-}
-
-""" DJANGO REST FRAMEWORK MAPPING"""
-DRF_EXCEPTION_MAP = {
-    DRFAPIException: {
-        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
-        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_API_EXCEPTION,
-        F.MSG: F.INTERNAL_SERVER_ERROR,
-        F.ERRORS: [],
-    },
-    DRFValidationError: {
-        F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
-        F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_VALIDATION_EXCEPTION,
-        F.MSG: F.UNPROCESSABLE,
-        F.ERRORS: [],
-    },
-    DRFParseError: {
-        F.STATUS: S.HTTP_400_BAD_REQUEST,
-        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_PARSE_ERROR,
-        F.MSG: F.PARSE_ERROR,
-        F.ERRORS: [],
-    },
-    DRFAuthenticationFailed: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_AUTHENTICATION_FAILED,
-        F.MSG: F.UNAUTHORIZED,
-        F.ERRORS: [],
-    },
-    DRFPermissionDenied : {
-        F.STATUS: S.HTTP_403_FORBIDDEN,
-        F.NAME: ERROR_NAME.FORBIDDEN_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_PERMISSION_DENIED,
-        F.MSG: F.FORBIDDEN,
-        F.ERRORS: [],
-    },
-    DRFNotFound: {
-        F.STATUS: S.HTTP_404_NOT_FOUND,
-        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_NOT_FOUND,
-        F.MSG: F.NOT_FOUND,
-        F.ERRORS: [],
-    },
-    DRFNotAuthenticated: {
-        F.STATUS: S.HTTP_401_UNAUTHORIZED,
-        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_NOT_AUTHENTICATED,
-        F.MSG: F.UNAUTHORIZED,
-        F.ERRORS: [],
-    },
-    DRFMethodNotAllowed: {
-        F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
-        F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
-        F.CODE: CUSTOM_CODE.DRF_METHOD_NOT_ALLOWED,
-        F.MSG: F.METHOD_NOT_ALLOWED,
-        F.ERRORS: [],
-    },
-    DRFNotAcceptable: {
-        F.STATUS: S.HTTP_406_NOT_ACCEPTABLE,
-        F.NAME: ERROR_NAME.NOT_ACCEPTABLE,
-        F.CODE: CUSTOM_CODE.DRF_NOT_ACCEPTABLE,
-        F.MSG: F.NOT_ACCEPTABLE,
-        F.ERRORS: [],
-    },
-    DRFUnsupportedMediaType: {
-        F.STATUS: S.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        F.NAME: ERROR_NAME.UNSUPPORTED_MEDIA_TYPE,
-        F.CODE: CUSTOM_CODE.DRF_UNSUPPORTED_MEDIA_TYPE,
-        F.MSG: F.UNSUPPORTED_MEDIA_TYPE,
-        F.ERRORS: [],
-    }
-}
 
 
 class ExceptionGenerator:
 
     @staticmethod
     def process_exception(error):
-        ''' This method helps to create response structure from Custom Error Neatly        
-        app.core.middleware.JSONValidationMiddleware        
+        """This method helps to create response structure from Custom Error Neatly
+        app.core.middleware.JSONValidationMiddleware
         exception = UnprocessableError(errors=[{F.BODY: F.INVALID_JSON}])
         payload = ExceptionGenerator.process_exception(exception)
         response = get_http_response(payload, payload[F.STATUS])
-        return response        
-        '''
+        return response
+        """
         return {
             F.STATUS: error.status,
             F.NAME: error.name,
@@ -587,6 +353,111 @@ def Exception500(request, *args, **kwargs):
 
 
 # ============================================
+# Django Framework Errors
+# ============================================
+
+EXCEPTION_ERROR_MAP = {
+    PermissionDenied: {
+        F.STATUS: S.HTTP_403_FORBIDDEN,
+        F.NAME: ERROR_NAME.FORBIDDEN_ERROR,
+        F.CODE: S.HTTP_403_FORBIDDEN,
+        F.MSG: F.FORBIDDEN,
+        F.ERRORS: [],
+    },
+    FieldError: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
+        F.CODE: S.HTTP_400_BAD_REQUEST,
+        F.MSG: F.FIELD_ERROR,
+        F.ERRORS: [],
+    },
+    ObjectDoesNotExist: {
+        F.STATUS: S.HTTP_404_NOT_FOUND,
+        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
+        F.CODE: S.HTTP_404_NOT_FOUND,
+        F.MSG: F.NOT_FOUND,
+        F.ERRORS: [],
+    },
+    ValidationError: {
+        F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
+        F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
+        F.CODE: S.HTTP_422_UNPROCESSABLE_ENTITY,
+        F.MSG: F.UNPROCESSABLE,
+        F.ERRORS: [],
+    },
+    BadRequest: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
+        F.CODE: S.HTTP_400_BAD_REQUEST,
+        F.MSG: F.BAD_REQUEST,
+        F.ERRORS: [],
+    },
+    RequestAborted: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.INTEGRITY_ERROR,
+        F.CODE: S.HTTP_400_BAD_REQUEST,
+        F.MSG: F.REQUEST_ABORTED,
+        F.ERRORS: [],
+    },
+}
+
+JWT_ERRORS_MAP = {
+    TokenError: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.JWT_TOKEN_ERROR,
+        F.MSG: F.JWT_TOKEN_ERROR,
+        F.ERRORS: [],
+    },
+    ExpiredTokenError: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.JWT_EXPIRED_TOKEN_ERROR,
+        F.MSG: F.JWT_EXPIRED_TOKEN,
+        F.ERRORS: [],
+    },
+    InvalidToken: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.JWT_INVALID_TOKEN,
+        F.MSG: F.JWT_INVALID_TOKEN,
+        F.ERRORS: [],
+    },
+    TokenBackendError: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.JWT_TOKEN_BACKEND_ERROR,
+        F.MSG: F.JWT_TOKEN_BACKEND_ERROR,
+        F.ERRORS: [],
+    },
+    TokenBackendExpiredToken: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.JWT_TOKEN_BACKEND_EXPIRED_TOKEN,
+        F.MSG: F.JWT_TOKEN_BACKEND_EXPIRED_ERROR,
+        F.ERRORS: [],
+    },
+    AuthenticationFailed: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.JWT_AUTHENTICATION_FAILED,
+        F.MSG: F.JWT_AUTHENTICATION_FAILED,
+        F.ERRORS: [],
+    },
+}
+
+"""
+Django Database Exception Hierarchy:
+- DatabaseError (base class)
+  ├── DataError (data processing errors)
+  ├── OperationalError (database operational errors)
+  ├── IntegrityError (constraint violations) # Unique, Foreign Key, Not Null
+  ├── InternalError (internal database errors)
+  ├── ProgrammingError (SQL programming errors)
+  └── NotSupportedError (unsupported operations)
+"""
+
+# ============================================
 # COMMON MYSQL ERROR CODES
 # ============================================
 
@@ -611,3 +482,139 @@ MySQL Error Codes Reference:
 - 1205: ER_LOCK_WAIT_TIMEOUT - Lock wait timeout exceeded
 - 1213: ER_LOCK_DEADLOCK - Deadlock found when trying to get lock
 """
+
+DB_ERROR_MAP = {
+    IntegrityError: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_INTEGRITY_ERROR,
+        F.MSG: F.DATABASE_INTEGRITY_ERROR,
+        F.ERRORS: [],
+    },
+    # ProtectedError: {
+    #     F.STATUS: S.HTTP_409_CONFLICT,
+    #     F.NAME: ERROR_NAME.CONFLICT_ERROR,
+    #     F.CODE: S.HTTP_409_CONFLICT,
+    #     F.MSG: F.CANNOT_DELETE_PROTECTED_RESOURCE,
+    #     F.ERRORS: [],
+    # },
+    DataError: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_DATA_ERROR,
+        F.MSG: F.DATABASE_DATA_ERROR,
+        F.ERRORS: [],
+    },
+    # DROP Database
+    OperationalError: {
+        F.STATUS: S.HTTP_503_SERVICE_UNAVAILABLE,
+        F.NAME: ERROR_NAME.UNAVAILABLE_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_TEMPORARILY_UNAVAILABLE,
+        F.MSG: F.DATABASE_TEMPORARILY_UNAVAILABLE,
+        F.ERRORS: [],
+    },
+    # Voilate constraint
+    DatabaseError: {
+        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_ERROR,
+        F.MSG: F.DATABASE_ERROR_OCCURRED,
+        F.ERRORS: [],
+    },
+    InternalError: {
+        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_INTERNAL_ERROR,
+        F.MSG: F.INTERNAL_SERVER_ERROR,
+        F.ERRORS: [],
+    },
+    ProgrammingError: {
+        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_PROGRAMMING_ERROR,
+        F.MSG: F.DATABASE_PROGRAMMING_ERROR,
+        F.ERRORS: [],
+    },
+    NotSupportedError: {
+        F.STATUS: S.HTTP_501_NOT_IMPLEMENTED,
+        F.NAME: ERROR_NAME.NOT_IMPLEMENTED_ERROR,
+        F.CODE: CUSTOM_CODE.DATABASE_OPERATION_NOT_SUPPORRTED,
+        F.MSG: F.DATABASE_OPERATION_NOT_SUPPORRTED,
+        F.ERRORS: [],
+    },
+}
+
+""" DJANGO REST FRAMEWORK MAPPING"""
+DRF_EXCEPTION_MAP = {
+    DRF_APIException: {
+        F.STATUS: S.HTTP_500_INTERNAL_SERVER_ERROR,
+        F.NAME: ERROR_NAME.INTERNAL_SERVER_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_API_EXCEPTION,
+        F.MSG: F.INTERNAL_SERVER_ERROR,
+        F.ERRORS: [],
+    },
+    DRF_ValidationError: {
+        F.STATUS: S.HTTP_422_UNPROCESSABLE_ENTITY,
+        F.NAME: ERROR_NAME.UNPROCESSABLE_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_VALIDATION_EXCEPTION,
+        F.MSG: F.UNPROCESSABLE,
+        F.ERRORS: [],
+    },
+    DRF_ParseError: {
+        F.STATUS: S.HTTP_400_BAD_REQUEST,
+        F.NAME: ERROR_NAME.BAD_REQUEST_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_PARSE_ERROR,
+        F.MSG: F.PARSE_ERROR,
+        F.ERRORS: [],
+    },
+    DRF_AuthenticationFailed: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_AUTHENTICATION_FAILED,
+        F.MSG: F.UNAUTHORIZED,
+        F.ERRORS: [],
+    },
+    DRF_PermissionDenied: {
+        F.STATUS: S.HTTP_403_FORBIDDEN,
+        F.NAME: ERROR_NAME.FORBIDDEN_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_PERMISSION_DENIED,
+        F.MSG: F.FORBIDDEN,
+        F.ERRORS: [],
+    },
+    DRF_NotFound: {
+        F.STATUS: S.HTTP_404_NOT_FOUND,
+        F.NAME: ERROR_NAME.NOT_FOUND_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_NOT_FOUND,
+        F.MSG: F.NOT_FOUND,
+        F.ERRORS: [],
+    },
+    DRF_NotAuthenticated: {
+        F.STATUS: S.HTTP_401_UNAUTHORIZED,
+        F.NAME: ERROR_NAME.UNAUTHORIZED_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_NOT_AUTHENTICATED,
+        F.MSG: F.UNAUTHORIZED,
+        F.ERRORS: [],
+    },
+    DRF_MethodNotAllowed: {
+        F.STATUS: S.HTTP_405_METHOD_NOT_ALLOWED,
+        F.NAME: ERROR_NAME.METHOD_NOT_ALLOWED_ERROR,
+        F.CODE: CUSTOM_CODE.DRF_METHOD_NOT_ALLOWED,
+        F.MSG: F.METHOD_NOT_ALLOWED,
+        F.ERRORS: [],
+    },
+    DRF_NotAcceptable: {
+        F.STATUS: S.HTTP_406_NOT_ACCEPTABLE,
+        F.NAME: ERROR_NAME.NOT_ACCEPTABLE,
+        F.CODE: CUSTOM_CODE.DRF_NOT_ACCEPTABLE,
+        F.MSG: F.NOT_ACCEPTABLE,
+        F.ERRORS: [],
+    },
+    DRF_UnsupportedMediaType: {
+        F.STATUS: S.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        F.NAME: ERROR_NAME.UNSUPPORTED_MEDIA_TYPE,
+        F.CODE: CUSTOM_CODE.DRF_UNSUPPORTED_MEDIA_TYPE,
+        F.MSG: F.UNSUPPORTED_MEDIA_TYPE,
+        F.ERRORS: [],
+    },
+}
+

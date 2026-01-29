@@ -25,8 +25,8 @@ class Starter:
             else:
                 self.logger.fatal(F.REDIS_CANNOT_CONNECTION)
                 sys.exit()
-            r.set(F.MY_KEY, F.HELLO_REDIS)
-            value = r.get(F.MY_KEY)
+            r.set(F.REDIS_KEY, F.REDIS_MSG)
+            value = r.get(F.REDIS_KEY)
             self.logger.info(
                 f"{F.RETRIEVED_VALUE} {value.decode(F.UTF8)}"
             )  # Decode bytes to string
@@ -34,7 +34,7 @@ class Starter:
             self.logger.critical(f"{F.REDIS_CONNECTION_ERROR} {e}")
             sys.exit()
         except Exception as e:
-            self.logger.critical(f"{F.UNEXPECTED_ERROR_REDIS} {e}")
+            self.logger.critical(f"{F.REDIS_UNEXPECTED_ERROR} {e}")
             sys.exit()
 
 class AppConfig(AppConfig):
