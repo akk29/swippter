@@ -29,6 +29,7 @@ services:
         expose:
             - 8000   
         environment:
+            - OTEL_SERVICE_NAME=swippter-backend  # Add this
             - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
             - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=grpc://otel-collector:4317
             - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=grpc://otel-collector:4317
@@ -115,17 +116,29 @@ services:
         container_name: tempo
         ports:
             - "3200:3200"
+        volumes:
+            - ./tempo-config.yaml:/etc/tempo/tempo.yaml
         command:
-            - "--storage.trace.backend=local"
-            - "--storage.trace.local.path=/tmp/tempo"
+            - "-config.file=/etc/tempo/tempo.yaml"
     grafana:
         image: grafana/grafana
         container_name: grafana
         ports:
             - "3000:3000"
+        volumes:
+            - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
         depends_on:
             - loki
             - tempo
             - otel-collector
+    prometheus:
+        image: prom/prometheus
+        container_name: prometheus
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./prometheus-config.yaml:/etc/prometheus/prometheus.yml
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
 volumes:
     static_volume: {}
