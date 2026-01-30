@@ -5,6 +5,7 @@ receivers:
         endpoint: otel-collector:4317
       http:
         endpoint: otel-collector:4318
+        
 exporters:
   debug:
     verbosity: detailed
@@ -12,14 +13,17 @@ exporters:
     endpoint: tempo:4317
     tls:
       insecure: true
+  prometheus:  # Add this
+    endpoint: "0.0.0.0:8889"
+
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [debug]
+      exporters: [debug, otlp]
     metrics:
       receivers: [otlp]
-      exporters: [debug]
+      exporters: [debug, prometheus]  # Export to prometheus
     logs:
       receivers: [otlp]
       exporters: [debug]
