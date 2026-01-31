@@ -26,15 +26,10 @@ services:
             dockerfile: ./infra/docker/server/Dockerfile
         volumes:
             - static_volume:/app/swippter/static-files
+        env_file: 
+            - ../env/.otel.env
         expose:
-            - 8000   
-        environment:
-            - OTEL_SERVICE_NAME=swippter-backend  # Add this
-            - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
-            - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=grpc://otel-collector:4317
-            - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=grpc://otel-collector:4317
-            - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
-            - OTEL_EXPORTER_OTLP_INSECURE=true
+            - 8000
         depends_on:
             redis:
                 condition: service_started
@@ -93,7 +88,7 @@ services:
         container_name: otel-collector
         command: [ "--config=/etc/otelcol/config.yaml" ]
         volumes:
-            - ./otel-collector-config.yaml:/etc/otelcol/config.yaml
+            - ./observability/otel-collector-config.yaml:/etc/otelcol/config.yaml
         ports:
             - "4317:4317"
             - "4318:4318"
@@ -101,7 +96,7 @@ services:
         image: grafana/promtail
         container_name: promtail
         volumes:
-            - ./promtail-config.yaml:/etc/promtail/config.yml
+            - ./observability/promtail-config.yaml:/etc/promtail/config.yml
             - /var/lib/docker/containers:/var/lib/docker/containers:ro
             - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
@@ -117,7 +112,7 @@ services:
         ports:
             - "3200:3200"
         volumes:
-            - ./tempo-config.yaml:/etc/tempo/tempo.yaml
+            - ./observability/tempo-config.yaml:/etc/tempo/tempo.yaml
         command:
             - "-config.file=/etc/tempo/tempo.yaml"
     grafana:
@@ -126,7 +121,7 @@ services:
         ports:
             - "3000:3000"
         volumes:
-            - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+            - ./observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
         depends_on:
             - loki
             - tempo
@@ -137,7 +132,7 @@ services:
         ports:
             - "9090:9090"
         volumes:
-            - ./prometheus-config.yaml:/etc/prometheus/prometheus.yml
+            - ./observability/prometheus-config.yaml:/etc/prometheus/prometheus.yml
         command:
             - '--config.file=/etc/prometheus/prometheus.yml'
 volumes:
