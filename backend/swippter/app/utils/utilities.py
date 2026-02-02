@@ -132,6 +132,13 @@ class FILLER:
     FIELD_ERROR = "Field Error"
     REQUEST_ABORTED = "Request Aborted"
 
+    CELERY_TASK_PRERUN = "🚀 Task Started: {} [ID: {}]"
+    CELERY_TASK_POSTRUN = "✅ Task Completed: {} [ID: {}]"
+    CELERY_TASK_FAILURE = "❌ Task Failed: [ID: {}] - {}"
+    CELERY_EMAIL_SENDING = "Sending email"
+    CELERY_EMAIL_SENT = "Email sent"
+    CELERY_EMAIL_SWITCH_OFF = "Sending email is switched off"
+
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
     LOGGING_FORMAT = "%(asctime)s:%(name)s:%(levelname)s - %(module)s:%(filename)s:%(funcName)s:%(lineno)d --- %(message)s"
