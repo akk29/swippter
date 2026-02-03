@@ -9,14 +9,7 @@ services:
         ports:
             - 80:80        
         volumes:
-            - static_volume:/app/swippter/static-files
-    dependencies:
-        image: swippter-backend-dependencies:latest
-        build:
-            context: ../../
-            dockerfile: ./infra/docker/dependencies/Dockerfile
-        volumes:
-            - static_volume:/app/swippter/static-files        
+            - static_volume:/app/swippter/static-files      
     server:
         image: swippter-backend-server:latest
         container_name: swippter-backend-server
@@ -33,10 +26,14 @@ services:
         depends_on:
             redis:
                 condition: service_started
-            dependencies:
-                condition: service_started
             mysql:
                 condition: service_healthy
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8000/api/vi/health"]
+            interval: 30s
+            timeout: 10s
+            start_period: 5s
+            retries: 3
     redis:
         image: redis
         container_name: redis
@@ -107,14 +104,19 @@ services:
         ports:
             - "3100:3100"
     tempo:
-        image: grafana/tempo
+        image: grafana/tempo:2.6.1
         container_name: tempo
+        user: "0:0" 
         ports:
             - "3200:3200"
+            - "4319:4317"  # Add OTLP gRPC receiver
+            - "4320:4318"  # Add OTLP HTTP receiver
         volumes:
             - ./observability/tempo-config.yaml:/etc/tempo/tempo.yaml
+            - tempo-data:/tmp/tempo  # Add persistent volume
         command:
             - "-config.file=/etc/tempo/tempo.yaml"
+            - "-target=all"
     grafana:
         image: grafana/grafana
         container_name: grafana
@@ -137,3 +139,4 @@ services:
             - '--config.file=/etc/prometheus/prometheus.yml'
 volumes:
     static_volume: {}
+    tempo-data: {}  # Add this
