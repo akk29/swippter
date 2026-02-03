@@ -29,13 +29,16 @@ spec:
           image: akk29/public:swippter-backend-server
           ports:
             - containerPort: 8000
+          envFrom:
+          - secretRef:
+              name: otel-env-secret
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
               cpu: "500m"
-              memory: "256Mi"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
           volumeMounts:
             - name: static-volume
               mountPath: /app/swippter/static-files
