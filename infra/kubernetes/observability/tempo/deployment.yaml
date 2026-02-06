@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo
+  labels:
+    app: tempo
+spec:
+  replicas: 1  # Tempo with local storage should be single replica
+  selector:
+    matchLabels:
+      app: tempo
+  strategy:
+    type: Recreate  # Important for stateful apps with PVC
+  template:
+    metadata:
+      labels:
+        app: tempo
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.6.1
+        args:
+          - "-config.file=/etc/tempo/config.yaml"
+          - "-target=all"
+        ports:
+        - name: http
+          containerPort: 3200
+          protocol: TCP
+        - name: otlp-grpc
+          containerPort: 4317
+          protocol: TCP
+        - name: otlp-http
+          containerPort: 4318
+          protocol: TCP
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo
+          readOnly: true
+        - name: tempo-data
+          mountPath: /tmp/tempo
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 3200
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3200
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+      volumes:
+      - name: tempo-config
+        configMap:
+          name: tempo-config
+          items:
+          - key: config.yaml
+            path: config.yaml
+      - name: tempo-data
+        persistentVolumeClaim:
+          claimName: tempo-data

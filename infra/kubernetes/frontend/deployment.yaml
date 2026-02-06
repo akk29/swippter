@@ -24,8 +24,8 @@ spec:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
-              memory: "256Mi"
+              cpu: "250m"
+              memory: "128Mi"
         volumeMounts:
           - name: static-volume
             mountPath: /app/swippter/static-files
