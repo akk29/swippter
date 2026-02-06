@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: promtail
-  labels:
-    app: promtail
 spec:
   replicas: 1
   selector:
@@ -20,33 +18,46 @@ spec:
         image: grafana/promtail:latest
         args:
           - -config.file=/etc/promtail/promtail.yaml
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: config
           mountPath: /etc/promtail
+        - name: run
+          mountPath: /run/promtail
+        - mountPath: /var/lib/docker/containers
+          name: docker
           readOnly: true
-        - name: varlog
-          mountPath: /var/log
-          readOnly: true
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
+        - mountPath: /var/log/pods
+          name: pods
           readOnly: true
         ports:
-        - name: http
-          containerPort: 9080
+        - containerPort: 9080
+          name: http-metrics
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsGroup: 0
+          runAsUser: 0
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: 128Mi
+            cpu: 100m
           limits:
-            memory: "256Mi"
-            cpu: "200m"
+            memory: 256Mi
+            cpu: 200m
       volumes:
       - name: config
         configMap:
           name: promtail-config
-      - name: varlog
+      - name: run
         hostPath:
-          path: /var/log
-      - name: varlibdockercontainers
+          path: /run/promtail
+      - name: docker
         hostPath:
           path: /var/lib/docker/containers
+      - name: pods
+        hostPath:
+          path: /var/log/pods
