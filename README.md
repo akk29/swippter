@@ -42,8 +42,6 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 
 ### Design Document
 
-[Swippter Design Document](https://www.notion.so/Swippter-Design-Document-2a901d4de5ee804f9bccd7441898614a)
-
 ![Swippter Application Architecture](docs/backend/swippter-design.svg)
 
 ### Technology Stack
