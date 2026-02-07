@@ -77,7 +77,7 @@ Before you begin, ensure you have the following installed:
 - **Docker Compose** (v2.40.3-desktop.1)
 - **Python** (3.13.3+)
 - **Node.js** (22.15.1+) and npm/yarn
-- **Git**
+- **Git** - (2.46.0)
 - **kubectl** (for Kubernetes deployment)
   - Client Version: v1.34.1
   - Kustomize Version: v5.7.1
@@ -161,6 +161,26 @@ MYSQL_PASSWORD=rootpassword
 MYSQL_ALLOW_EMPTY_PASSWORD=YES
 ```
 
+```bash
+# Create backend environment file
+cd infra/env
+cp .otel.env.example .otel.env
+```
+
+Edit `.otel.env` with your configuration:
+
+```env
+OTEL_SERVICE_NAME=swippter-backend
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://otel-collector:4317
+OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4317
+OTEL_EXPORTER_OTLP_INSECURE=true
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+OTEL_TRACES_EXPORTER=otlp
+OTEL_METRICS_EXPORTER=otlp
+OTEL_LOGS_EXPORTER=otlp
+```
+
 #### Frontend Environment (.env)
 
 ```bash
@@ -213,7 +233,7 @@ This is the easiest way to run the entire application stack.
 ```bash
 # Before running make sure to make .env and .mysql.env file in your local directory
 
-# make sure these are config valeus for backend env file while running via docker to make container networking connection properly
+# make sure these are config values for backend env file while running via docker to make container networking connection properly
 # /backend/swippter/.env
 DBHOST="mysql"
 REDIS="redis://redis:6379"
@@ -223,10 +243,7 @@ CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672/"
 cd infra/docker
 
 # Build and start all services
-docker compose build dependencies
-
-# create services
-docker compose up nginx server redis mysql rabbitmq --force-recreate
+docker compose up --force-recreate
 
 # Check running services
 docker-compose ps
@@ -234,15 +251,13 @@ docker-compose ps
 # Stop all services
 docker-compose down
 
-# Stop and remove volumes (CAUTION: deletes data)
-docker-compose down -v
 ```
 
 **Services will be available at:**
 - Backend API: http://localhost/api/v1/
 - API Docs: http://localhost/api/schema/swagger-ui/
 - Admin Panel: http://localhost/admin
-- MySQL: localhost:3306
+- Database: localhost:3306
 - Redis: localhost:6379
 
 ### Option 2: Local Development
@@ -257,7 +272,7 @@ source .venv/bin/activate  # Linux/Mac
 # or
 .venv\Scripts\activate     # Windows
 
-# Run Development server (before running make sure redis, rabbitmq and mysql are running)
+# Run Dependencies server (before running make sure redis, rabbitmq and mysql are running)
 cd infra/docker
 docker compose up redis mysql rabbitmq --force-recreate
 
@@ -269,10 +284,10 @@ python manage.py makemigrations app
 python manage.py makemigrations
 python manage.py migrate
 
-2026-01-13 23:20:53,482:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1701358784016
-2026-01-13 23:20:53,494:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-2026-01-13 23:20:53,501:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
-2026-01-13 23:20:53,502:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
+482:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1701358784016
+494:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+501:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
+502:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
 Operations to perform:
   Apply all migrations: admin, app, auth, contenttypes, sessions, token_blacklist
 Running migrations:
@@ -312,20 +327,15 @@ Running migrations:
 # Create superuser (admin) visit http://localhost:8000/admin in browser
 python manage.py create_admin
 
-# run server
+# run development server
 python manage.py runserver
-2025-12-08 19:53:10,292:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1732918697264
-2025-12-08 19:53:10,293:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-2025-12-08 19:53:10,310:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
-2025-12-08 19:53:10,317:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
-2025-12-08 19:53:10,785:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1677889953072
-2025-12-08 19:53:10,785:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-2025-12-08 19:53:10,796:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
-2025-12-08 19:53:10,799:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
-Performing system checks...
+292:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1732918697264
+293:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+310:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
+317:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
 
+Performing system checks...
 System check identified no issues (0 silenced).
-December 08, 2025 - 19:53:10
 Django version 5.2.8, using settings 'swippter.settings'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CTRL-BREAK.
@@ -333,21 +343,6 @@ Quit the server with CTRL-BREAK.
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
 For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
 
-```
-
-#### Start Frontend
-
-```bash
-cd frontend
-
-# Development server
-bun run dev
-
-# Build for production
-bun run build
-
-# Serve production build
-serve -s build -l 3000
 ```
 
 #### Start Background Workers (Celery)
@@ -364,13 +359,16 @@ celery -A swippter.celery worker --pool=solo --loglevel=info # windows
 celery -A swippter.celery flower --port=5555
 ```
 
-### Option 3: Individual Docker Containers
+#### Start Frontend
 
 ```bash
-# Build dependencies
-cd infra/docker
-docker compose build dependencies
-docker compose up frontend server redis mysql rabbitmq --force-recreate
+cd frontend
+
+# Development server
+bun run dev
+
+# Build for production
+bun run build
 ```
 
 ## ☸️ Infrastructure Deployment
@@ -378,7 +376,6 @@ docker compose up frontend server redis mysql rabbitmq --force-recreate
 ### Docker Compose Commands
 
 ```bash
-
 # Setting up env for backend before deployment
 EDIT /backend/swippter/.env
 # Database settings
@@ -411,17 +408,10 @@ EMAIL_HOST_PASSWORD="email_host_password"
 EMAIL_PORT="25"
 # Frontend Settings
 FRONT_URL="http://localhost:8000"
-```
 
-
-```bash
+# run via docker compose
 cd infra/docker
-
-# build Dependencies
-docker compose build dependencies
-
-# Start Services
-docker compose up nginx server redis mysql rabbitmq --force-recreate
+docker compose up --force-recreate 
 
 ```
 
@@ -431,8 +421,12 @@ docker compose up nginx server redis mysql rabbitmq --force-recreate
 
 ```bash
 # Ensure kubectl is configured
-kubectl cluster-info
-kubectl get nodes
+kubectl version
+
+Client Version: v1.34.1
+Kustomize Version: v5.7.1
+Server Version: v1.34.1
+
 ```
 
 #### Deploy to Kubernetes
@@ -440,64 +434,79 @@ kubectl get nodes
 ```bash
 cd infra/kubernetes
 
+############### Automated Script for bore commands - Single Command Setup  ######################
+
+# Windows
+start-w.bat # for running services 
+clean-w.bat # for cleaning services
+
+############### Individual commadns for running services  ######################
+
 # Create namespace
 kubectl create namespace swippter
 
-# Config for nginx deployment
-kubectl create configmap nginx-config --from-file=default.conf=../config/default.conf
-
-# Create static storage
-kubectl apply -f static-pvc.yaml
-
-# ENV config for mysql service
-kubectl create secret generic mysql-secret --from-env-file=../env/.mysql.env
-
 # Deploy mysql
-kubectl apply -f mysql/pvc.yaml
-kubectl apply -f mysql/deployment.yaml
-kubectl apply -f mysql/service.yaml
+kubectl create secret generic mysql-secret --from-env-file=../env/.mysql.env -n swippter
+kubectl apply -f mysql/pvc.yaml -n swippter
+kubectl apply -f mysql/deployment.yaml -n swippter
+kubectl apply -f mysql/service.yaml -n swippter
 
 # Deploy redis
-kubectl apply -f redis/deployment.yaml
-kubectl apply -f redis/service.yaml
+kubectl apply -f redis/deployment.yaml -n swippter
+kubectl apply -f redis/service.yaml -n swippter
 
-# Deploy nginx
-kubectl apply -f nginx/deployment.yaml
-kubectl apply -f nginx/service.yaml
+# Deploy frontend
+kubectl create configmap nginx-config --from-file=default.conf=../config/default.conf -n swippter
+kubectl apply -f static-pvc.yaml -n swippter
+kubectl apply -f frontend/deployment.yaml -n swippter
+kubectl apply -f frontend/service.yaml -n swippter
 
 # Deploy server
-kubectl apply -f server/deployment.yaml
-kubectl apply -f server/service.yaml
+kubectl create secret generic otel-env-secret --from-env-file=../env/.otel.env -n swippter
+kubectl apply -f server/deployment.yaml -n swippter
+kubectl apply -f server/service.yaml -n swippter
 
 # Deploy rabbitmq
-kubectl apply -f rabbitmq/deployment.yaml
-kubectl apply -f rabbitmq/service.yaml
+kubectl apply -f rabbitmq/deployment.yaml -n swippter
+kubectl apply -f rabbitmq/service.yaml -n swippter
 
-############### Automated Script for above commands ######################
+# Deploy otel-collector
+kubectl apply -f observability/otel-collector/config.yaml -n swippter
+kubectl apply -f observability/otel-collector/deployment.yaml -n swippter
+kubectl apply -f observability/otel-collector/service.yaml -n swippter
 
-# Windows
+# Deploy loki
+kubectl apply -f observability/loki/pvc.yaml -n swippter
+kubectl apply -f observability/loki/deployment.yaml -n swippter
+kubectl apply -f observability/loki/service.yaml -n swippter
 
-start-w.bat # for setup
-clean-w.bat # for clean up
+# Deploy tempo
+kubectl apply -f observability/tempo/config.yaml -n swippter
+kubectl apply -f observability/tempo/pvc.yaml -n swippter
+kubectl apply -f observability/tempo/deployment.yaml -n swippter
+kubectl apply -f observability/tempo/service.yaml -n swippter
 
-```
+# Deploy promtail
+kubectl apply -f observability/promtail/config.yaml -n swippter
+kubectl apply -f observability/promtail/rbac.yaml -n swippter
+kubectl apply -f observability/promtail/deployment.yaml -n swippter
+kubectl apply -f observability/promtail/service.yaml -n swippter
 
-### Monitoring & Logging
+# Deploy prometheus
+kubectl apply -f observability/prometheus/config.yaml -n swippter
+kubectl apply -f observability/prometheus/deployment.yaml -n swippter
+kubectl apply -f observability/prometheus/service.yaml -n swippter
 
-```bash
-# View application logs
-docker-compose logs -f backend frontend
+# Deploy grafana
+kubectl apply -f observability/grafana/config.yaml -n swippter
+kubectl apply -f observability/grafana/deployment.yaml -n swippter
+kubectl apply -f observability/grafana/service.yaml -n swippter
 
-# Kubernetes logs
-kubectl logs -f deployment/backend -n swippter
-
-# Redis monitoring
-docker-compose exec redis redis-cli INFO
 ```
 
 ## 📚 API Documentation
 
-Once the backend is running, access the interactive API documentation:
+Once the backend is running for development setup, access the interactive API documentation:
 
 - **Swagger UI**: http://localhost:8000/api/schema/swagger-ui/
 - **ReDoc**: http://localhost:8000/api/schema/redoc
@@ -600,12 +609,12 @@ npm test -- ProductCard.test.js
 
 ### Common Issues
 
-#### Redis not running
+- #### Redis not running
 
 ```bash
-2026-01-13 23:28:00,828:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 2009449615024
-2026-01-13 23:28:00,839:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-2026-01-13 23:28:04,894:app.core.logging:CRITICAL - config:config.py:setup_redis:34 --- Redis connection error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+828:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 2009449615024
+839:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
+894:app.core.logging:CRITICAL - config:config.py:setup_redis:34 --- Redis connection error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
 ```
 
 ```bash
@@ -616,7 +625,7 @@ REDIS="redis://localhost:6379"
 ```
 
 
-#### Database Connection Error
+- #### Database Connection Error
 
 ```bash
 # Run database
@@ -624,7 +633,7 @@ REDIS="redis://localhost:6379"
 docker compose run mysql
 ```
 
-#### Rabbitmq Connection Error
+- #### Rabbitmq Connection Error
 
 ```bash
 # Error logs
@@ -639,6 +648,15 @@ kombu.exceptions.OperationalError: [WinError 10061] No connection could be made 
 docker compose run rabbitmq
 ```
 
+- #### Kubernetes Error
+
+```bash
+Client Version: v1.34.1
+Kustomize Version: v5.7.1
+error: Get "https://kubernetes.docker.internal:6443/version?timeout=32s": read tcp 127.0.0.1:60227->127.0.0.1:6443: wsarecv: An existing connection was forcibly closed by the remote host. - error from a previous attempt: EO
+
+# Run kuberntes from Docker Destop and create a cluster
+```
 
 ## 🤝 Contributing
 
