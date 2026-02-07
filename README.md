@@ -7,6 +7,8 @@
 [![Maintainability](https://qlty.sh/gh/akk29/projects/swippter/maintainability.svg)](https://qlty.sh/gh/akk29/projects/swippter)
 [![codecov](https://codecov.io/gh/akk29/swippter/graph/badge.svg?token=8AVEMH80AT)](https://codecov.io/gh/akk29/swippter)
 
+<img src="docs/project-icon.svg" alt="Alt text" width="200" height="200" />
+
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
