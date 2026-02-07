@@ -145,8 +145,10 @@ EMAIL_PORT="25"
 FRONT_URL="http://localhost:8000"
 ```
 
+#### MySQL Environment Setup (.env)
+
 ```bash
-# Create backend environment file
+# Create MySQL environment file
 cd infra/env
 cp .mysql.env.example .mysql.env
 ```
@@ -160,6 +162,8 @@ MYSQL_USER=dbuser
 MYSQL_PASSWORD=rootpassword
 MYSQL_ALLOW_EMPTY_PASSWORD=YES
 ```
+
+#### Otel Environment Setup (.env)
 
 ```bash
 # Create backend environment file
@@ -195,7 +199,6 @@ Edit `.env`:
 # API Configuration
 REACT_APP_API_URL=http://localhost:8000/api
 REACT_APP_WS_URL=ws://localhost:8000/ws
-
 ```
 
 ### 3. Install Dependencies
@@ -210,7 +213,6 @@ uv sync
 
 # Go to project directory
 cd swippter
-
 ```
 
 #### Frontend
@@ -231,9 +233,8 @@ yarn install
 This is the easiest way to run the entire application stack.
 
 ```bash
-# Before running make sure to make .env and .mysql.env file in your local directory
+# Before running make sure to make .env and .mysql.env file in your local directory to make container networking connection properly
 
-# make sure these are config values for backend env file while running via docker to make container networking connection properly
 # /backend/swippter/.env
 DBHOST="mysql"
 REDIS="redis://redis:6379"
@@ -342,7 +343,6 @@ Quit the server with CTRL-BREAK.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
 For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
-
 ```
 
 #### Start Background Workers (Celery)
@@ -412,7 +412,6 @@ FRONT_URL="http://localhost:8000"
 # run via docker compose
 cd infra/docker
 docker compose up --force-recreate 
-
 ```
 
 ### Kubernetes Deployment
@@ -426,7 +425,6 @@ kubectl version
 Client Version: v1.34.1
 Kustomize Version: v5.7.1
 Server Version: v1.34.1
-
 ```
 
 #### Deploy to Kubernetes
@@ -501,7 +499,6 @@ kubectl apply -f observability/prometheus/service.yaml -n swippter
 kubectl apply -f observability/grafana/config.yaml -n swippter
 kubectl apply -f observability/grafana/deployment.yaml -n swippter
 kubectl apply -f observability/grafana/service.yaml -n swippter
-
 ```
 
 ## 📚 API Documentation
@@ -582,7 +579,6 @@ cd backend/swippter
 # Run all tests with coverage
 coverage run manage.py test
 coverage html -d coverage_html
-
 ```
 
 ### Frontend Tests
