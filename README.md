@@ -307,15 +307,15 @@ bun run build
 
 ### Option 2: Docker Compose (Recommended for Live Demo)
 
-This is the easiest way to run the entire application stack.
+This is the easiest way to run the entire application & observability stack.
+Before running make sure to make update thse file in your local directory to make container networking connection properly
+- Backend - [.env](#backend-environment-env) ```/backend/swippter/.env ```
+- Database - [.mysql.env](#mysql-environment-setup-env) ```/infra/env/.mysql.env```
+- Observability - [.otel.env](#otel-environment-setup-env) ```/infra/env/.otel.env ```
+- Frontend - [.env](#frontend-environment-env) ```/frontend/.env```
 
 ```bash
-# Before running make sure to make update .env and .mysql.env and .otel.env file in your 
-# local directory to make container networking connection properly
-
-# /infra/env/.mysql.env
-# /infra/env/.otel.env
-# /backend/swippter/.env
+# Update to point to container -> /backend/swippter/.env
 DBHOST="mysql"
 REDIS="redis://redis:6379"
 CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672/" 
