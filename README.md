@@ -53,7 +53,7 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. Applic
 - Database - MySQL
 - Caching - Redis
 - Queue - Celery
-- Broeker - RabbitMQ
+- Broker - RabbitMQ
 - Package Manager - UV
 
 **Frontend:**
