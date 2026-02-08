@@ -12,13 +12,12 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
-- [Architecture](#-architecture)
+- [Architecture](#%EF%B8%8F-architecture) 
 - [Prerequisites](#-prerequisites)
 - [Installation & Setup](#-installation--setup)
 - [Running the Application](#-running-the-application)
-- [Infrastructure Deployment](#-infrastructure-deployment)
+- [Infrastructure Deployment](#%EF%B8%8F-infrastructure-deployment)
 - [API Documentation](#-api-documentation)
-- [Development](#-development)
 - [Testing](#-testing)
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
@@ -26,7 +25,7 @@
 
 ## 🎯 Overview
 
-Swippter is a modern ecommerce platform designed for fast fashion retail. The application provides a complete solution for managing products, orders, customers, and inventory with a scalable microservices architecture.
+Swippter is a modern ecommerce platform designed for fast fashion retail. Application provides a complete solution for managing products, orders, customers, and inventory with a scalable microservices architecture.
 
 ### Key Features
 
@@ -49,40 +48,38 @@ Swippter is a modern ecommerce platform designed for fast fashion retail. The ap
 ### Technology Stack
 
 **Backend:**
-- Python - 3.13
-- Django + DRF
-- MySQL (database) - 8.0
-- Redis (caching)
-- Celery/RabbitMQ (task queue)
-- UV - Package Manager
+- Language - Python
+- Framework - Django
+- Database - MySQL
+- Caching - Redis
+- Queue - Celery
+- Broeker - RabbitMQ
+- Package Manager - UV
 
 **Frontend:**
-- React.js
-- TypeScript
-- Tailwind CSS
-- NodeJS - 22.15.1
-- Bun - 1.3.4
+- Langauge - TypeScript
+- Framework - ReactJS & Tailwind CSS
+- Runtime - Bun
 
 **Infrastructure:**
 - Docker & Docker Compose
 - Kubernetes
 
 **Documentation:**
-- Swagger / Swagger UI - API Documentation
-- Open API - API Documentation
+- API Documentation - Swagger / Swagger UI + Open API
 
 ## 📦 Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- **Docker** (29.1.2+)
-- **Docker Compose** (v2.40.3-desktop.1)
-- **Python** (3.13.3+)
-- **Node.js** (22.15.1+) and npm/yarn
-- **Git** - (2.46.0)
-- **kubectl** (for Kubernetes deployment)
-  - Client Version: v1.34.1
-  - Kustomize Version: v5.7.1
+- **Docker** : v29.1.2+
+- **Docker Compose** : v2.40.3-desktop.1
+- **Python** : v3.13.3+
+- **Node.js** : v22.15.1+ and bun
+- **Git** : v2.46.0
+- **kubectl** - for Kubernetes deployment
+  - Client Version : v1.34.1
+  - Kustomize Version : v5.7.1
 
 ### System Requirements
 
@@ -168,7 +165,7 @@ MYSQL_ALLOW_EMPTY_PASSWORD=YES
 #### Otel Environment Setup (.env)
 
 ```bash
-# Create backend environment file
+# Create Otel environment file
 cd infra/env
 cp .otel.env.example .otel.env
 ```
@@ -198,9 +195,8 @@ cp .env.example .env
 Edit `.env`:
 
 ```env
-# API Configuration
-REACT_APP_API_URL=http://localhost:8000/api
-REACT_APP_WS_URL=ws://localhost:8000/ws
+REACT_APP_backend_url=http://localhost:8000/api
+NODE_ENV=development
 ```
 
 ### 3. Install Dependencies
@@ -223,47 +219,12 @@ cd swippter
 cd frontend
 
 # Install dependencies
-npm install
-# or
-yarn install
+bun install
 ```
 
 ## 🏃 Running the Application
 
-### Option 1: Docker Compose (Recommended)
-
-This is the easiest way to run the entire application stack.
-
-```bash
-# Before running make sure to make .env and .mysql.env file in your local directory to make container networking connection properly
-
-# /backend/swippter/.env
-DBHOST="mysql"
-REDIS="redis://redis:6379"
-CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672/" 
-
-# From the project root directory
-cd infra/docker
-
-# Build and start all services
-docker compose up --force-recreate
-
-# Check running services
-docker-compose ps
-
-# Stop all services
-docker-compose down
-
-```
-
-**Services will be available at:**
-- Backend API: http://localhost/api/v1/
-- API Docs: http://localhost/api/schema/swagger-ui/
-- Admin Panel: http://localhost/admin
-- Database: localhost:3306
-- Redis: localhost:6379
-
-### Option 2: Local Development
+### Option 1: Development Setup
 
 #### Start Backend
 
@@ -271,9 +232,11 @@ docker-compose down
 cd backend
 
 # Activate virtual environment
-source .venv/bin/activate  # Linux/Mac
+# Linux/Mac
+source .venv/bin/activate  
 # or
-.venv\Scripts\activate     # Windows
+# Windows
+.venv\Scripts\activate     
 
 # Run Dependencies server (before running make sure redis, rabbitmq and mysql are running)
 cd infra/docker
@@ -294,48 +257,12 @@ python manage.py migrate
 Operations to perform:
   Apply all migrations: admin, app, auth, contenttypes, sessions, token_blacklist
 Running migrations:
-  Applying contenttypes.0001_initial... OK
-  Applying contenttypes.0002_remove_content_type_name... OK
-  Applying auth.0001_initial... OK
-  Applying auth.0002_alter_permission_name_max_length... OK
-  Applying auth.0003_alter_user_email_max_length... OK
-  Applying auth.0004_alter_user_username_opts... OK
-  Applying auth.0005_alter_user_last_login_null... OK
-  Applying auth.0006_require_contenttypes_0002... OK
-  Applying auth.0007_alter_validators_add_error_messages... OK
-  Applying auth.0008_alter_user_username_max_length... OK
-  Applying auth.0009_alter_user_last_name_max_length... OK
-  Applying auth.0010_alter_group_name_max_length... OK
-  Applying auth.0011_update_proxy_permissions... OK
-  Applying auth.0012_alter_user_first_name_max_length... OK
-  Applying app.0001_initial... OK
-  Applying admin.0001_initial... OK
-  Applying admin.0002_logentry_remove_auto_add... OK
-  Applying admin.0003_logentry_add_action_flag_choices... OK
-  Applying sessions.0001_initial... OK
-  Applying token_blacklist.0001_initial... OK
-  Applying token_blacklist.0002_outstandingtoken_jti_hex... OK
-  Applying token_blacklist.0003_auto_20171017_2007... OK
-  Applying token_blacklist.0004_auto_20171017_2013... OK
-  Applying token_blacklist.0005_remove_outstandingtoken_jti... OK
-  Applying token_blacklist.0006_auto_20171017_2113... OK
-  Applying token_blacklist.0007_auto_20171017_2214... OK
-  Applying token_blacklist.0008_migrate_to_bigautofield... OK
-  Applying token_blacklist.0010_fix_migrate_to_bigautofield... OK
-  Applying token_blacklist.0011_linearizes_history... OK
-  Applying token_blacklist.0012_alter_outstandingtoken_user... OK
-  Applying token_blacklist.0013_alter_blacklistedtoken_options_and_more... OK
-
 
 # Create superuser (admin) visit http://localhost:8000/admin in browser
 python manage.py create_admin
 
-# run development server
+# running development server
 python manage.py runserver
-292:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 1732918697264
-293:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
-310:app.core.logging:INFO - config:config.py:setup_redis:24 --- Successfully connected to Redis!
-317:app.core.logging:INFO - config:config.py:setup_redis:30 --- Retrieved value: hello redis
 
 Performing system checks...
 System check identified no issues (0 silenced).
@@ -360,11 +287,10 @@ celery -A swippter.celery worker --pool=solo --loglevel=info # windows
 # Start Flower (Celery monitoring)
 celery -A swippter.celery flower --port=5555
 ```
-
 #### Start Frontend
 
 ```bash
-cd frontend
+cd swippter/frontend
 
 # Development server
 bun run dev
@@ -373,9 +299,52 @@ bun run dev
 bun run build
 ```
 
+**Services will be available at:**
+- Backend API: http://localhost:8000/api/v1/
+- API Docs: http://localhost:8000/api/schema/swagger-ui/
+- Admin Panel: http://localhost:8000/admin
+- Frontend : http://localhost:3000
+
+### Option 2: Docker Compose (Recommended for Live Demo)
+
+This is the easiest way to run the entire application stack.
+
+```bash
+# Before running make sure to make update .env and .mysql.env and .otel.env file in your 
+# local directory to make container networking connection properly
+
+# /infra/env/.mysql.env
+# /infra/env/.otel.env
+# /backend/swippter/.env
+DBHOST="mysql"
+REDIS="redis://redis:6379"
+CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672/" 
+
+# From the project root directory
+cd infra/docker
+
+# Build and start all services
+docker compose up --force-recreate
+
+# Check running services
+docker-compose ps
+
+# Stop all services
+docker-compose down
+```
+
+**Services will be available at:**
+- Backend API: http://localhost/api/v1/
+- API Docs: http://localhost/api/schema/swagger-ui/
+- Admin Panel: http://localhost/admin
+- Frontend : http://localhost
+- Grafana : http://localhost:3200 - admin:admin
+
 ## ☸️ Infrastructure Deployment
 
-### Docker Compose Commands
+⚠️ Please follow security guidelines for deployment based on your Cloud Provider. Project is currently is in development mode. Security related checklist will be available soon.
+
+### Docker Compose Deployment
 
 ```bash
 # Setting up env for backend before deployment
@@ -415,6 +384,12 @@ FRONT_URL="http://localhost:8000"
 cd infra/docker
 docker compose up --force-recreate 
 ```
+
+**Services will be available at:**
+- Backend API: http://localhost/api/v1/
+- API Docs: http://localhost/api/schema/swagger-ui/
+- Admin Panel: http://localhost/admin
+- Frontend : http://localhost
 
 ### Kubernetes Deployment
 
@@ -503,6 +478,12 @@ kubectl apply -f observability/grafana/deployment.yaml -n swippter
 kubectl apply -f observability/grafana/service.yaml -n swippter
 ```
 
+**Services will be available at:**
+- Backend API: http://localhost/api/v1/
+- API Docs: http://localhost/api/schema/swagger-ui/
+- Admin Panel: http://localhost/admin
+- Frontend : http://localhost
+
 ## 📚 API Documentation
 
 Once the backend is running for development setup, access the interactive API documentation:
@@ -516,7 +497,20 @@ Once the backend is running for development setup, access the interactive API do
 
 ```bash
 # Health check / Check API
-curl http://localhost:8000/api/v1/
+curl --request GET \
+  --url http://localhost:8000/api/v1/health \
+  --header 'Content-Type: application/json'
+{
+	"status": 200,
+	"message": "success",
+	"data": {
+		"version": "v1",
+		"method": "GET",
+		"status": "healthy",
+		"database": "connected",
+		"redis": "connected"
+	}
+}
 
 # User signup
 curl -X POST http://localhost:8000/api/v1/signup \
@@ -533,20 +527,20 @@ curl --request POST \
   --url http://localhost:8000/api/v1/signout \
   --header 'Content-Type: application/json' \
   --data '{
-  "refresh": "string"
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzAyODE5LCJpYXQiOjE3Njc3MDI1MTksImp0aSI6IjYwYTcwMzlkYThlYzQ4ZTQ5MDcxZDFlNGJmMjBhOGUzIiwidXVpZCI6ImU4ZmM4OGM4LWJkYjUtNDBhZS1iNjMxLWM4NDI3NjZkMGRkNyJ9.sRMzFNiUJtC9kSOvGICbY2bH2_KNIFRwn2xMiXYd4zM"
 }'
 
 # User forget 
 curl --request POST \
   --url http://localhost:8000/api/v1/forgot \
-  --header 'Authorization: Bearer bearerToken'
+  --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzAyODE5LCJpYXQiOjE3Njc3MDI1MTksImp0aSI6IjYwYTcwMzlkYThlYzQ4ZTQ5MDcxZDFlNGJmMjBhOGUzIiwidXVpZCI6ImU4ZmM4OGM4LWJkYjUtNDBhZS1iNjMxLWM4NDI3NjZkMGRkNyJ9.sRMzFNiUJtC9kSOvGICbY2bH2_KNIFRwn2xMiXYd4zM'
 
 # User verify
 curl --request POST \
   --url http://localhost:8000/api/v1/verify \
   --header 'Content-Type: application/json' \
   --data '{
-  "token": "string"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzAyODE5LCJpYXQiOjE3Njc3MDI1MTksImp0aSI6IjYwYTcwMzlkYThlYzQ4ZTQ5MDcxZDFlNGJmMjBhOGUzIiwidXVpZCI6ImU4ZmM4OGM4LWJkYjUtNDBhZS1iNjMxLWM4NDI3NjZkMGRkNyJ9.sRMzFNiUJtC9kSOvGICbY2bH2_KNIFRwn2xMiXYd4zM"
 }'
 
 # User refresh
@@ -554,22 +548,14 @@ curl --request POST \
   --url http://localhost:8000/api/v1/refresh \
   --header 'Content-Type: application/json' \
   --data '{
-  "refresh": "string"
-}'
-
-# User verify-token
-curl --request POST \
-  --url http://localhost:8000/api/v1/verify \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "token": "string"
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzAyODE5LCJpYXQiOjE3Njc3MDI1MTksImp0aSI6IjYwYTcwMzlkYThlYzQ4ZTQ5MDcxZDFlNGJmMjBhOGUzIiwidXVpZCI6ImU4ZmM4OGM4LWJkYjUtNDBhZS1iNjMxLWM4NDI3NjZkMGRkNyJ9.sRMzFNiUJtC9kSOvGICbY2bH2_KNIFRwn2xMiXYd4zM"
 }'
 
 # User change-password
 curl --request POST \
   --url http://localhost:8000/api/v1/change-password \
-  --header 'Authorization: Bearer bearerToken'
-
+  --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzAyODE5LCJpYXQiOjE3Njc3MDI1MTksImp0aSI6IjYwYTcwMzlkYThlYzQ4ZTQ5MDcxZDFlNGJmMjBhOGUzIiwidXVpZCI6ImU4ZmM4OGM4LWJkYjUtNDBhZS1iNjMxLWM4NDI3NjZkMGRkNyJ9.sRMzFNiUJtC9kSOvGICbY2bH2_KNIFRwn2xMiXYd4zM'
+```
 
 ## 🧪 Testing
 
@@ -589,18 +575,13 @@ coverage html -d coverage_html
 cd frontend
 
 # Run tests
-npm test
-# or
-yarn test
 
 # Run with coverage
-npm test -- --coverage
 
 # Run E2E tests
-npm run test:e2e
 
 # Run specific test file
-npm test -- ProductCard.test.js
+
 ```
 
 ## 🐛 Troubleshooting
@@ -619,7 +600,8 @@ npm test -- ProductCard.test.js
 # Run redis 
 docker compose run redis
 # check in env and configure according to your environment
-REDIS="redis://localhost:6379"
+REDIS="redis://localhost:6379" # local setip
+REDIS="redis://redis:6379" # docker or kubernetes setup
 ```
 
 
@@ -638,7 +620,9 @@ docker compose run mysql
 
 backend -> .env
 DEBUG=False # only then will be able to see this error on devlopment terminal
-
+# Celery settings
+CELERY_BROKER_URL="amqp://guest:guest@localhost:5672/" # local development
+CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672/"  # docker or kubernetes setup
 raise ConnectionError(str(exc)) from exc
 kombu.exceptions.OperationalError: [WinError 10061] No connection could be made because the target machine actively refused it
 
