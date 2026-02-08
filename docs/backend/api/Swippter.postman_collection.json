@@ -1,0 +1,383 @@
+{
+  "info": {
+    "_postman_id": "98d10cc2-6d18-462f-b45c-81bfa5c2bda8",
+    "name": "Swippter Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46121622",
+    "_collection_link": "https://go.postman.co/collection/46121622-98d10cc2-6d18-462f-b45c-81bfa5c2bda8?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "SIGNUP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"role\": 3,\n    \"email\": \"a1+07@c.com\",\n    \"first_name\": \"ccc1\",\n    \"last_name\": \"c111c\",\n    \"password\": \"test@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1/api/v1/signup \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"role\": 3,\n    \"email\": \"a1+07@c.com\",\n    \"first_name\": \"ccc1\",\n    \"last_name\": \"c111c\",\n    \"password\": \"test@1234\"\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "SIGNIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"a1+07@c.com\",\n    \"password\": \"test@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "signin"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/signin \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"email\": \"a1+7@c.com\",\n    \"password\": \"test@123\"\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "SIGNOUT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vault:json-web-token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh\": \"{{vault:json-web-token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/signout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "signout"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/signout \\\n  --header 'Authorization: Bearer {{vault:json-web-token}}' \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"refresh\": \"{{vault:json-web-token}}\"\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "REFRESH",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "insomnia/12.2.0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh\" : \"{{vault:json-web-token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "refresh"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/refresh \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"refresh\" : \"{{vault:json-web-token}}\"\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "VERIFY",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vault:json-web-token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "insomnia/12.2.0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"{{vault:json-web-token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "verify"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/verify \\\n  --header 'Authorization: Bearer {{vault:json-web-token}}' \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"token\": \"{{vault:json-web-token}}\"\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "FORGOT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "insomnia/12.2.0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"a1+7@c.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/forgot",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "forgot"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/forgot \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"email\": \"a1+7@c.com\"\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "VERIFY-TOKEN",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "insomnia/12.2.0"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/verify-token/DA1YzMzMDUtNTM5Yi00MzczLTkyODYtMDUzMTUzYTliN2Rl/d2bdru-3e61515b9d3d7f77f6ef23e3f298b003",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "verify-token",
+                "DA1YzMzMDUtNTM5Yi00MzczLTkyODYtMDUzMTUzYTliN2Rl",
+                "d2bdru-3e61515b9d3d7f77f6ef23e3f298b003"
+              ]
+            },
+            "description": "Generated from cURL: curl --request GET \\\n  --url http://127.0.0.1:8000/api/v1/verify-token/DA1YzMzMDUtNTM5Yi00MzczLTkyODYtMDUzMTUzYTliN2Rl/d2bdru-3e61515b9d3d7f77f6ef23e3f298b003 \\\n  --header 'User-Agent: insomnia/12.2.0'"
+          },
+          "response": []
+        },
+        {
+          "name": "CHANGE PASSWORD",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vault:json-web-token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "insomnia/12.2.0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"password\": \"test@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "change-password"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/change-password \\\n  --header 'Authorization: Bearer {{vault:json-web-token}}' \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.2.0' \\\n  --data '{\n    \"password\": \"test@123\"\n}'"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "item": [
+        {
+          "name": "V1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vault:json-web-token}}"
+              },
+              {
+                "key": "If-None-Match",
+                "value": "\"6e37e87527c5fe015a5b92fb22f6b5e7\""
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}",
+              "host": [
+                "{{base_url}}"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1:8000/api/v1/ \\\n  --header 'Authorization: Bearer {{vault:json-web-token}}' \\\n  --header 'If-None-Match: \t\"6e37e87527c5fe015a5b92fb22f6b5e7\"'"
+          },
+          "response": []
+        },
+        {
+          "name": "RAISE ERROR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "User-Agent",
+                "value": "insomnia/12.0.0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"status\": 400,\n\t\"name\": \"BAD_REQUEST_ERROR\",\n\t\"code\": 400,\n\t\"msg\": \"Invalid data format.\",\n\t\"errors\": [\n\t\t1406,\n\t\t\"Data too long for column 'first_name' at row 1\"\n\t]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/raise-error",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "raise-error"
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST \\\n  --url http://127.0.0.1/api/v1/raise-error \\\n  --header 'Content-Type: application/json' \\\n  --header 'User-Agent: insomnia/12.0.0' \\\n  --data '{\n\t\"status\": 400,\n\t\"name\": \"BAD_REQUEST_ERROR\",\n\t\"code\": 400,\n\t\"msg\": \"Invalid data format.\",\n\t\"errors\": [\n\t\t1406,\n\t\t\"Data too long for column '\\''first_name'\\'' at row 1\"\n\t]\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "HEALTH CHECK",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Generated from cURL: curl --request GET \\\n  --url http://localhost:8000/api/v1/health \\\n  --header 'Content-Type: application/json'"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
