@@ -3,8 +3,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from app.core.celery_tasks import trigger_mail_backround
+from app.core.errors import CUSTOM_CODE as CC
 from app.core.exceptions import UnauthorizedError, UnprocessableError
-from app.core.exceptions import UnprocessableError, CUSTOM_CODE as CC
 from app.dao.base_dao import BaseDAO
 from app.models.user import User, RoleEnum
 from app.utils.utilities import (
@@ -14,7 +14,6 @@ from app.utils.utilities import (
     generate_salt,
 )
 from swippter.settings import RESET_EMAIL
-
 
 class UserDAO(BaseDAO):
 

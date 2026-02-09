@@ -4,7 +4,8 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.db.models.signals import post_save
 from rest_framework import status as S
-from app.core.exceptions import UnprocessableError, CUSTOM_CODE
+from app.core.errors import CUSTOM_CODE as CC
+from app.core.exceptions import UnprocessableError
 from app.models.base import BaseModel
 from app.utils.utilities import F, generate_salt
 from app.models.signals.user_signal import trigger_user_verification_email
@@ -34,7 +35,7 @@ class UserManager(BaseUserManager):
                         F.FIELD: F.EMAIL,
                         F.ERRORS: [
                             {
-                                F.CODE: CUSTOM_CODE.EMAIL_MUST_BE_SET,
+                                F.CODE: CC.EMAIL_MUST_BE_SET,
                                 F.MSG: F.EMAIL_MUST_BE_SET,
                             }
                         ],
