@@ -9,14 +9,7 @@ services:
         ports:
             - 80:80        
         volumes:
-            - static_volume:/app/swippter/static-files
-    dependencies:
-        image: swippter-backend-dependencies:latest
-        build:
-            context: ../../
-            dockerfile: ./infra/docker/dependencies/Dockerfile
-        volumes:
-            - static_volume:/app/swippter/static-files        
+            - static_volume:/app/swippter/static-files      
     server:
         image: swippter-backend-server:latest
         container_name: swippter-backend-server
@@ -26,15 +19,21 @@ services:
             dockerfile: ./infra/docker/server/Dockerfile
         volumes:
             - static_volume:/app/swippter/static-files
+        env_file: 
+            - ../env/.otel.env
         expose:
-            - 8000   
+            - 8000
         depends_on:
             redis:
                 condition: service_started
-            dependencies:
-                condition: service_started
             mysql:
                 condition: service_healthy
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8000/api/vi/health"]
+            interval: 30s
+            timeout: 10s
+            start_period: 5s
+            retries: 3
     redis:
         image: redis
         container_name: redis
@@ -81,5 +80,63 @@ services:
       depends_on:
         redis : 
             condition: service_started
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib
+        container_name: otel-collector
+        command: [ "--config=/etc/otelcol/config.yaml" ]
+        volumes:
+            - ./observability/otel-collector-config.yaml:/etc/otelcol/config.yaml
+        ports:
+            - "4317:4317"
+            - "4318:4318"
+    promtail:
+        image: grafana/promtail
+        container_name: promtail
+        volumes:
+            - ./observability/promtail-config.yaml:/etc/promtail/config.yml
+            - /var/lib/docker/containers:/var/lib/docker/containers:ro
+            - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - loki
+    loki:
+        image: grafana/loki
+        container_name: loki
+        ports:
+            - "3100:3100"
+    tempo:
+        image: grafana/tempo:2.6.1
+        container_name: tempo
+        user: "0:0" 
+        ports:
+            - "3200:3200"
+            - "4319:4317"  # Add OTLP gRPC receiver
+            - "4320:4318"  # Add OTLP HTTP receiver
+        volumes:
+            - ./observability/tempo-config.yaml:/etc/tempo/tempo.yaml
+            - tempo-data:/tmp/tempo  # Add persistent volume
+        command:
+            - "-config.file=/etc/tempo/tempo.yaml"
+            - "-target=all"
+    grafana:
+        image: grafana/grafana
+        container_name: grafana
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+        depends_on:
+            - loki
+            - tempo
+            - otel-collector
+    prometheus:
+        image: prom/prometheus
+        container_name: prometheus
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./observability/prometheus-config.yaml:/etc/prometheus/prometheus.yml
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
 volumes:
     static_volume: {}
+    tempo-data: {}  # Add this

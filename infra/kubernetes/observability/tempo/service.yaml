@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo
+  labels:
+    app: tempo
+spec:
+  type: LoadBalancer
+  selector:
+    app: tempo
+  ports:
+  - name: http
+    port: 3200
+    targetPort: 3200
+    protocol: TCP
+  - name: otlp-grpc
+    port: 4317  # External port matching your Docker setup
+    targetPort: 4317  # Internal container port
+    protocol: TCP
+  - name: otlp-http
+    port: 4318  # External port matching your Docker setup
+    targetPort: 4318  # Internal container port
+    protocol: TCP
