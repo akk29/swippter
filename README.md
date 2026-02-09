@@ -594,9 +594,7 @@ cd frontend
 828:app.core.logging:INFO - logging:logging.py:setup:47 --- Setting up logger - objID - 2009449615024
 839:app.core.logging:INFO - config:config.py:setup_logger:17 --- logger setup complete
 894:app.core.logging:CRITICAL - config:config.py:setup_redis:34 --- Redis connection error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
-```
 
-```bash
 # Run redis 
 docker compose run redis
 # check in env and configure according to your environment
