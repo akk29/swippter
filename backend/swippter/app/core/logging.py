@@ -54,7 +54,7 @@ class Logger:
     @staticmethod
     def log_exception(exception):
         tb = traceback.extract_stack()[:-1]
-        last_frame = tb[-3]
+        last_frame = tb[-4]
         file_name = last_frame.filename
         line_no = last_frame.lineno
         func_name = last_frame.name

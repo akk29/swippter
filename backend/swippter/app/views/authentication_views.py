@@ -38,7 +38,7 @@ class ForgotView(BaseAPIView):
     def post(self, request):
         payload = JSONParser().parse(request)
         auth_service.forgot_service(**payload)
-        http_response = get_http_response_msg()
+        http_response = get_http_response_msg(status=S.HTTP_202_ACCEPTED,message=F.EMAIL_IF_USER_EXISTS)
         return http_response
 
 class VerifyTokenView(BaseAPIView):

@@ -84,15 +84,27 @@ class SimpleTest(unittest.TestCase):
 
         """Test forgot password endpoint with valid credentials"""
         response = self.client.post("/api/v1/forgot", data=json.dumps(self.forgot_password_data), content_type="application/json")
-        self.assertEqual(response.status_code, S.HTTP_200_OK)
-        self.assertIn(response.status_code, [S.HTTP_200_OK])
+        self.assertEqual(response.status_code, S.HTTP_202_ACCEPTED)
+        self.assertIn(response.status_code, [S.HTTP_202_ACCEPTED])
 
         user = self.user_dao.fetch_one(**{F.EMAIL : self.random_email})
+        
+        uidb64,_token = F.UIDB64, F.TOKEN
+        verify_token_url = f'/api/v1/verify-token/{uidb64}/{_token}'
+
+        response = self.client.get(verify_token_url)
+        self.assertEqual(response.status_code, S.HTTP_500_INTERNAL_SERVER_ERROR)
+
         uidb64 = urlsafe_base64_encode(force_bytes(user.uuid))
         _token = default_token_generator.make_token(user)
         verify_token_url = f'/api/v1/verify-token/{uidb64}/{_token}'
         response = self.client.get(verify_token_url)
         self.assertEqual(response.status_code, S.HTTP_200_OK)
+
+        _token = F.TOKEN
+        verify_token_url = f'/api/v1/verify-token/{uidb64}/{_token}'
+        response = self.client.get(verify_token_url)
+        self.assertEqual(response.status_code, S.HTTP_422_UNPROCESSABLE_ENTITY)
 
         """SUCCESS:Test user change password using valid token"""
         response = self.client.post("/api/v1/change-password", data=json.dumps({
@@ -125,11 +137,11 @@ class SimpleTest(unittest.TestCase):
     def test_forgot_password_failure(self):
         """Test forgot password endpoint with invalid credentials"""
         forgot_password_data = {
-            "email": "invalid_email@email.com",
+            "email": "invalid_email@email.com", # still sends email and says accepted
         }
         response = self.client.post("/api/v1/forgot", data=json.dumps(forgot_password_data), content_type="application/json")
-        self.assertEqual(response.status_code, S.HTTP_422_UNPROCESSABLE_ENTITY)
-        self.assertIn(response.status_code, [S.HTTP_422_UNPROCESSABLE_ENTITY])
+        self.assertEqual(response.status_code, S.HTTP_202_ACCEPTED)
+        self.assertIn(response.status_code, [S.HTTP_202_ACCEPTED])
 
     def test_create_admin_command(self):
         """ Test create admin command."""
@@ -140,9 +152,9 @@ class SimpleTest(unittest.TestCase):
 
     def test_shared_task(self):
         kwargs = {
-            F.EMAIL : "a@a.com",
-            F.MESSAGE : "msg",
-            F.SENDER : "sender",
-            F.RECIEVER : "receiver"
+            F.SUBJECT : F.SUBJECT,
+            F.MESSAGE : F.MESSAGE,
+            F.SENDER : F.SENDER,
+            F.RECIEVER : F.RECIEVER
         }
         trigger_mail_backround(**kwargs)
