@@ -99,7 +99,7 @@ cd swippter
 
 ### 2. Environment Configuration
 
-Create environment files for backend and frontend:
+Create environment files for settings and cofiguration.
 
 #### Backend Environment (.env)
 
@@ -108,8 +108,8 @@ Create environment files for backend and frontend:
 cd backend/swippter
 cp .env.example .env
 ```
-
-Edit `.env` with your configuration:
+<details>
+<summary>Edit `.env` with your configuration:</summary>
 
 ```bash
 # Database settings
@@ -143,16 +143,17 @@ EMAIL_PORT="25"
 # Frontend Settings
 FRONT_URL="http://localhost:8000"
 ```
+</details>
 
-#### MySQL Environment Setup (.env)
+#### MySQL Environment (.env)
 
 ```bash
 # Create MySQL environment file
 cd infra/env
 cp .mysql.env.example .mysql.env
 ```
-
-Edit `.mysql.env` with your configuration:
+<details>
+<summary>Edit `.mysql.env` with your configuration:</summary>
 
 ```env
 MYSQL_DATABASE=swippterdb
@@ -161,6 +162,7 @@ MYSQL_USER=dbuser
 MYSQL_PASSWORD=rootpassword
 MYSQL_ALLOW_EMPTY_PASSWORD=YES
 ```
+</details>
 
 #### Otel Environment Setup (.env)
 
@@ -170,7 +172,8 @@ cd infra/env
 cp .otel.env.example .otel.env
 ```
 
-Edit `.otel.env` with your configuration:
+<details>
+<summary>Edit `.otel.env` with your configuration:</summary>
 
 ```env
 OTEL_SERVICE_NAME=swippter-backend
@@ -183,6 +186,7 @@ OTEL_TRACES_EXPORTER=otlp
 OTEL_METRICS_EXPORTER=otlp
 OTEL_LOGS_EXPORTER=otlp
 ```
+</details>
 
 #### Frontend Environment (.env)
 
@@ -192,12 +196,15 @@ cd frontend
 cp .env.example .env
 ```
 
-Edit `.env`:
+<details>
+<summary>Edit `.env` with your configuration:</summary>
 
 ```env
 REACT_APP_backend_url=http://localhost:8000/api
 NODE_ENV=development
 ```
+
+</details>
 
 ### 3. Install Dependencies
 
@@ -226,7 +233,9 @@ bun install
 
 ### Option 1: Development Setup
 
-#### Start Backend
+<details>
+
+<summary>Start Backend</summary>
 
 ```bash
 cd backend
@@ -274,7 +283,10 @@ WARNING: This is a development server. Do not use it in a production setting. Us
 For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
 ```
 
-#### Start Background Workers (Celery)
+</details>
+
+<details>
+<summary>Start Background Workers (Celery)</summary>
 
 ```bash
 cd backend
@@ -287,7 +299,11 @@ celery -A swippter.celery worker --pool=solo --loglevel=info # windows
 # Start Flower (Celery monitoring)
 celery -A swippter.celery flower --port=5555
 ```
-#### Start Frontend
+
+</details>
+
+<details>
+<summary>Start Frontend</summary>
 
 ```bash
 cd swippter/frontend
@@ -298,6 +314,8 @@ bun run dev
 # Build for production
 bun run build
 ```
+
+</details>
 
 **Services will be available at:**
 - Backend API: http://localhost:8000/api/v1/
