@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
     branches: [ "main" ]
 env:
+        ENV: ${{ secrets.ENV }}
         # Database settings
         DB: ${{ secrets.DB }}
         DATABASE: ${{ secrets.DATABASE }}
@@ -16,6 +17,7 @@ env:
         DBPASSWORD: ${{ secrets.DBPASSWORD }}
         DBHOST: ${{ secrets.DBHOST }}
         DBPORT: ${{ secrets.DBPORT }}
+        DB_CRITICAL: ${{ secrets.DB_CRITICAL }}
         # Django framework settings
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         DEBUG: ${{ secrets.DEBUG }}
@@ -25,9 +27,11 @@ env:
         ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         # Redis settings
         REDIS: ${{ secrets.REDIS }}
+        REDIS_CRITICAL: ${{ secrets.REDIS_CRITICAL }}
         # Celery settings
         CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
         CELERY_TASK_SERIALIZER: ${{ secrets.CELERY_TASK_SERIALIZER }}
+        RABBITMQ_CRITICAL: ${{ secrets.RABBITMQ_CRITICAL }}
         # Email settings
         TRIGGER_MAIL_SWITCH: ${{ secrets.TRIGGER_MAIL_SWITCH }}
         INFO_EMAIL: ${{ secrets.INFO_EMAIL }}
