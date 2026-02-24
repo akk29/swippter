@@ -3,7 +3,8 @@ from collections import defaultdict
 from typing import Dict
 from pydantic import BaseModel, ValidationError as PydanticValidationError
 from rest_framework import status as S
-from app.core.exceptions import UnprocessableError, CUSTOM_CODE, ExceptionGenerator
+from app.core.errors import CUSTOM_CODE as CC
+from app.core.exceptions import UnprocessableError, ExceptionGenerator
 from app.utils.utilities import F
 from app.pattern.singleton import SingletonPattern
 
@@ -15,10 +16,10 @@ class BaseValidator(SingletonPattern):
 
     def get_custom_code(self,error_type):
         try:   
-            data = getattr(CUSTOM_CODE,error_type)     
+            data = getattr(CC,error_type)     
             return data
         except AttributeError:
-            return CUSTOM_CODE.PYDANTIC_VALIDATION
+            return CC.PYDANTIC_VALIDATION
 
     def validate_data(self):
         '''

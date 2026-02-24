@@ -1,6 +1,7 @@
 import unittest
 from django.core.exceptions import PermissionDenied
 from django.db import DatabaseError
+from django.test import Client
 from rest_framework.exceptions import Throttled, AuthenticationFailed
 from rest_framework_simplejwt.exceptions import ExpiredTokenError
 from app.core.exceptions import (
@@ -16,7 +17,18 @@ from app.core.exceptions import (
     Exception500,
     process_library_exceptions,
 )
+from rest_framework import status
 
+class RID:
+    request_id = "12ed150f865a"
+
+class _REQUEST:
+    _request = RID
+
+class META_REQUEST:
+    META = {"request_id" : "12ed150f865a"}
+
+context = {'request' : _REQUEST}
 class ExceptionTest(unittest.TestCase):
 
     def test_bad_request_exception(self):
@@ -56,10 +68,10 @@ class ExceptionTest(unittest.TestCase):
             self.assertEqual(UnprocessableError, type(e))
 
     def test_exception_500(self):
-        Exception500("")
+        Exception500(META_REQUEST)
 
     def test_throttled(self):
-        process_library_exceptions(Throttled(wait=5), "")
+        process_library_exceptions(Throttled(wait=5),context)
 
     def test_conflict(self):
         try:
@@ -77,13 +89,13 @@ class ExceptionTest(unittest.TestCase):
         ExceptionGenerator.error_generator()
 
     def test_database_error(self):
-        process_library_exceptions(DatabaseError(), "")
+        process_library_exceptions(DatabaseError(), context)
 
     def test_django_error(self):
-        process_library_exceptions(PermissionDenied(), "")
+        process_library_exceptions(PermissionDenied(), context)
 
     def test_jwt_error(self):
-        process_library_exceptions(ExpiredTokenError(), "")
+        process_library_exceptions(ExpiredTokenError(), context)
 
     def test_rest_framework_error(self):
-        process_library_exceptions(AuthenticationFailed(), "")
+        process_library_exceptions(AuthenticationFailed(), context)

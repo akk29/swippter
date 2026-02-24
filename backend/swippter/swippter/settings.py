@@ -26,6 +26,14 @@ CORS_ALLOW_METHODS = [*default_methods]
 ROOT_URLCONF = "swippter.urls"
 WSGI_APPLICATION = "swippter.wsgi.application"
 
+# CRITICAL 
+DB_CRITICAL = config("DB_CRITICAL", cast=bool)
+REDIS_CRITICAL = config("REDIS_CRITICAL", cast=bool)
+RABBITMQ_CRITICAL = config("RABBITMQ_CRITICAL", cast=bool)
+
+# ENV
+ENV = config("ENV")
+
 # Frontend Settings
 FRONT_URL = config("FRONT_URL")
 
@@ -74,6 +82,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    "app.core.middlewares.RequestIDMiddleware",
+    "app.core.middlewares.LoggingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",

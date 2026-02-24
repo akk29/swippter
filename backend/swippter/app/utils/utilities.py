@@ -27,53 +27,67 @@ CASE CONVENTION FOR FILLER
 
 """
 
+class ENVS:
+    PROD = "prod"
+    STAGING = "staging"
+    DEV = "dev"
 
 class FILLER:
-    # Common or one time / non-context / Single word / Non Space literal
-    A = "A"
+    # Common or one time / non-context / Single word / Non Space literal / Small    
     ACCESS = "access"
     ADMIN = "admin"
-    ADMIN_EMAIL = "ADMIN_EMAIL"
-    ADMIN_PASSWORD = "ADMIN_PASSWORD"
     AFTER = "after"
     ANON = "anon"
     APPLICATION_JSON = "application/json"
     BODY = "body"
     CODE = "code"
-    CONNECTED = 'connected'
+    CONNECTED = "connected"
     CONSUMER = "consumer"
     CREATED = "created"
+    CONTENT = "content"
+    CONTENT_LENGTH = "Content-Length"
+    CONTENT_TYPE = "content_type"
     DATA = "data"
     DATABASE = "database"
     DELETED = "deleted"
+    DEFAULT = "default"
     ERROR = "error"
     ERRORS = "errors"
     EMAIL = "email"
+    EXCEPTION_TYPE = "exception_type"
+    EXCEPTION_METADATA = "_exception_metadata"
+    EXCEPTION_REPR = "exception_repr"
+    FILE = "file"
     FIELD = "field"
-    FIRST_NAME = "first_name"
+    FIRST_NAME = "first_name"   
+    FUNCTION = "function" 
     GET_TOKEN = "get_token"
     HEALTHY = "healthy"
     HEALTH_CHECK = "health_check"
     IS_SUPERUSER = "is_superuser"
     IS_STAFF = "is_staff"
     IS_VERIFIED = "is_verified"
+    IP = "ip"
     KEY = "key"
     LAST_NAME = "last_name"
     LOC = "loc"
+    LINE = "line"
     METHOD = "method"
     MESSAGE = "message"
     MSG = "msg"
     MYSQL = "mysql"
     NAME = "name"
     OK = "ok"
-    PASSWORD = "password"
-    PATCH = "PATCH"
-    POST = "POST"
-    PUT = "PUT"
+    PATH = "path"
+    PASSWORD = "password"    
     PK = "pk"
+    QUERY_PARAMS = "query_params"
+    RABBITMQ = "rabbitmq"
     RECIEVER = "reciever"
     REFRESH = "refresh"
+    REMOTE_ADDR = "REMOTE_ADDR"
     RESET_PASSWORD = "reset_password"
+    REQUEST_ID = "request_id"    
     ROLE = "role"
     SALT = "salt"
     SENDER = "sender"
@@ -82,6 +96,8 @@ class FILLER:
     SUBJECT = "subject"
     SUCCESS = "success"
     SUPER_ADMIN = "super_admin"
+    SWIPPTER = "swippter"
+    START_TIME = "_start_time"
     THROTTLE_LIMIT = "throttle_limit"
     TOKEN = "token"
     TYPE = "type"
@@ -90,11 +106,23 @@ class FILLER:
     UIDB64 = "uidb64"
     USER = "user"
     USERNAME = "username"
+    USER_AGENT = "user_agent"
     UUID = "uuid"
-    VERSION = "version"
+    UTF8 = "utf-8"
     UPDATED = "updated"
     V1 = "v1"
-    UTF8 = "utf-8"
+    VERSION = "version"
+    
+    # Capital
+    A = "A"
+    ADMIN_EMAIL = "ADMIN_EMAIL"
+    ADMIN_PASSWORD = "ADMIN_PASSWORD"
+    GET = "GET"
+    PATCH = "PATCH"
+    POST = "POST"
+    PUT = "PUT"
+    OPTIONS = "OPTIONS"
+    DELETE = "DELETE"
     Z = "Z"
 
     # Errors msgs
@@ -105,6 +133,7 @@ class FILLER:
     INTERNAL_SERVER_ERROR = "Internal Server Error"
     NOT_FOUND = "Not found"
     NOT_ACCEPTABLE = "Not Acceptable"
+    NOT_IMPLEMENTED = "Not Implemented"
     PARSE_ERROR = "Parse Error"
     TOO_MANY_REQUESTS = "You have made too many requests. Please try again later. Retry after {} seconds"
     UNAUTHORIZED = "Unauthorized"
@@ -117,12 +146,15 @@ class FILLER:
     DATA_INTEGRITY_CONSTRAINT_VOLIATED = "Data integrity constraint violated."
     DATABASE_TEMPORARILY_UNAVAILABLE = "Database temporarily unavailable."
     DATABASE_ERROR_OCCURRED = "Database error occurred."
-    DATABASE_DATA_ERROR = "Database data error"
+    DATABASE_DATA_ERROR = "Database data error."
     CANNOT_DELETE_PROTECTED_RESOURCE = "Cannot delete protected resource."
     DATABASE_OPERATION_NOT_SUPPORRTED = "Database operation not supported."
     DATABASE_PROGRAMMING_ERROR = "Database programming error."
+    DATABASE_CONNECTION_SUCCESS = "Database is connected."
+    DATABASE_CONNECTION_FAILED = "Database is down"
+    DATABASE_UNEXPECTED_ERROR = "Database unavailable, An unexpected error occurre while connecting to Database: {}, retrying again ... in {} seconds"
 
-    # Custom Error msgs / Business Logic
+    # Custom Error msgs / business Logic
     EMAIL_MUST_BE_SET = "The given email must be set"
     EMAIL_ALREADY_TAKEN = "The given email is already registered"
     EMAIL_NOT_FOUND = "The given email doesn't exist in our system"
@@ -132,13 +164,18 @@ class FILLER:
     INVALID_RESET_TOKEN = "Invalid reset token"
     INVALID_DATA_FORMAT = "Invalid data format."
     INVALID_JSON = "Invalid JSON"
-    NEW_PASSWORD_CANNOT_BE_SAME_AS_CURRENT_PASSWORD = "New password can't be same as current password"
+    NEW_PASSWORD_CANNOT_BE_SAME_AS_CURRENT_PASSWORD = (
+        "New password can't be same as current password"
+    )
     USERNAME_UNAVAILABLE = "Username unavailable"
     USERNAME_NOT_ALLOWED = "Username not allowed"
     USER_NOT_FOUND = "The given user doesn't exist in our system"
     VALIDATION_FAILED = "Validation Failed."
     FIELD_ERROR = "Field Error"
     REQUEST_ABORTED = "Request Aborted"
+    EMAIL_IF_USER_EXISTS = (
+        "If user exists in our system. You will recieve email shortly."
+    )
 
     CELERY_TASK_PRERUN = "🚀 Task Started: {} [ID: {}]"
     CELERY_TASK_POSTRUN = "✅ Task Completed: {} [ID: {}]"
@@ -150,6 +187,7 @@ class FILLER:
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
     LOGGING_FORMAT = "%(asctime)s:%(name)s:%(levelname)s - %(module)s:%(filename)s:%(funcName)s:%(lineno)d --- %(message)s"
+    LOGGER_SETUP_SUCCESS = "logger setup complete"
 
     # Logging Colors
     LOG_GREEN = "\x1b[1;32m"
@@ -166,8 +204,13 @@ class FILLER:
     REDIS_KEY = "mykey"
     REDIS_MSG = "hello redis"
     RETRIEVED_VALUE = "Retrieved value:"
-    REDIS_CONNECTION_ERROR = "Redis connection error:"
-    REDIS_UNEXPECTED_ERROR = "An unexpected error occurred:"
+    REDIS_CONNECTION_ERROR = "Redis connection error"
+    REDIS_UNEXPECTED_ERROR = "Redis unavailable, An unexpected error occurre while connecting to Redis: {}, retrying again ... in {} seconds"
+    REDIS_IS_DOWN = "Redis is down"
+
+    RABBITMQ_CONNECTION_SUCCESS = "RabbitMQ broker is available!"
+    RABBITMQ_UNEXPECTED_ERROR = "RabbitMQ broker unavailable, An unexpected error occurre while connecting to RabbitMQ: {}, retrying again ... in {} seconds"
+    RABBITMQ_IS_DOWN = "RabbitMQ is down"
 
     # Other strings in Application
     ADMIN_USER_ALREADY_REGISTERED = "Admin user already registered"
@@ -189,9 +232,16 @@ class FILLER:
     X_RATELIMIT_LIMIT = "X-RateLimit-Limit"
     X_RATELIMIT_REMAINING = "X-RateLimit-Remaining"
     X_RATELIMIT_RESET = "X-RateLimit-Reset"
+    X_REQUEST_ID = "X-Request-Id"
+    
+    # Http
+    HTTP_X_FORWARDED_FOR = "HTTP_X_FORWARDED_FOR"
+    HTTP_USER_AGENT = "HTTP_USER_AGENT"
+    
 
 
 F = FILLER
+
 
 def get_http_response(
     payload={}, status=S.HTTP_200_OK, content_type=F.APPLICATION_JSON
@@ -201,6 +251,7 @@ def get_http_response(
     )
     return response
 
+
 def get_http_response_msg(
     payload={},
     status=S.HTTP_200_OK,
@@ -208,7 +259,7 @@ def get_http_response_msg(
     message=F.SUCCESS,
 ):
     response = HttpResponse(
-        json.dumps({F.STATUS: status, F.MESSAGE: message, F.DATA: payload}),
+        json.dumps({F.STATUS: status, F.MSG: message, F.DATA: payload}),
         status=status,
         content_type=content_type,
     )
@@ -253,7 +304,6 @@ def get_item(arr, index):
         return item
     except IndexError:
         return None
-
 
 # def generate_token(user):
 #     payload = {F.ID : user.id , F.EMAIL  : user.email , F.ROLE : profileTyepMapping[int(user.profiletype)]}
