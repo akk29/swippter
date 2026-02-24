@@ -3,7 +3,7 @@ import uuid
 import time
 from django.utils.deprecation import MiddlewareMixin
 from app.core.exceptions import ExceptionGenerator, UnprocessableError
-from app.utils.utilities import F, get_http_response
+from app.utils.utilities import F, get_http_response, ENVS
 from app.core.logging import Logger
 from swippter.settings import DEBUG, ENV
 
@@ -41,25 +41,23 @@ class RequestIDMiddleware(MiddlewareMixin):
         """Generate and attach request_id at start of request"""
         request_id = uuid.uuid4().hex[:12]
         request.request_id = request_id
-        request.META["request_id"] = request_id
+        request.META[F.REQUEST_ID] = request_id
 
     def process_response(self, request, response):
         """Add request_id to response headers and body"""
-        request_id = getattr(request, "request_id", "unknown")
+        request_id = getattr(request, F.REQUEST_ID, F.UNKNOWN)
         response[F.X_REQUEST_ID] = request_id
-        if hasattr(response, "content") and hasattr(response, "content_type"):
+        if hasattr(response, F.CONTENT) and hasattr(response, F.CONTENT_TYPE):
             if response.content and response.content_type == F.APPLICATION_JSON:
                 data = json.loads(response.content.decode(F.UTF8))
-                data["request_id"] = request_id
-                data = {**{"request_id": request_id}, **data}
+                data[F.REQUEST_ID] = request_id
+                data = {**{F.REQUEST_ID: request_id}, **data}
                 response.content = json.dumps(data).encode(F.UTF8)
                 response[F.CONTENT_LENGTH] = len(response.content)
         return response
 
 
 """ To log the information for all type of requests that are hitting the server"""
-
-
 class LoggingMiddleware(MiddlewareMixin):
 
     def __init__(self, get_response):
@@ -80,36 +78,36 @@ class LoggingMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # logger.info(f"processing request {request}")
         request._start_time = time.time()
-        request_id = getattr(request, "request_id", "unknown")
+        request_id = getattr(request, F.REQUEST_ID, F.UNKNOWN)
 
         # Base log message
         log_msg = (
             f"[{request_id}] - "
-            f"method: {request.method} - "
-            f"path: {request.path} - "
-            f"ip: {self._get_client_ip(request)} - "
-            f"user_agent: {request.META.get('HTTP_USER_AGENT', 'unknown')}"
+            f"{F.METHOD}: {request.method} - "
+            f"{F.PATH}: {request.path} - "
+            f"{F.IP}: {self._get_client_ip(request)} - "
+            f"{F.USER_AGENT}: {request.META.get(F.HTTP_USER_AGENT, F.UNKNOWN)}"
         )
 
         # Add query params only in dev/staging
-        if DEBUG or ENV in ["dev", "staging"]:
-            sanitized_params = self._sanitize_query_params(request.GET)
+        if DEBUG or ENV in [ENVS.DEV]:
+            sanitized_params = request.GET
             if sanitized_params:
-                log_msg += f" - query_params: {dict(sanitized_params)}"
+                log_msg += f" - {F.QUERY_PARAMS}: {dict(sanitized_params)}"
 
         logger.info(log_msg)
 
     def process_response(self, request, response):
-        request_id = getattr(request, "request_id", "unknown")
-        duration = int((time.time() - getattr(request, '_start_time', time.time())) * 1000)
+        request_id = getattr(request, F.REQUEST_ID, F.UNKNOWN)
+        duration = int((time.time() - getattr(request, F.START_TIME, time.time())) * 1000)
 
         if request.content_type == F.APPLICATION_JSON:
-            if hasattr(response, "_exception_metadata"):
+            if hasattr(response, F.EXCEPTION_METADATA):
                 meta = response._exception_metadata
                 logger.error(
-                    f"[{request_id}] --- {duration}ms --- {meta['file']}:{meta['line']}:{meta['function']} - {meta['exception_repr']}"
+                    f"[{request_id}] --- {duration}ms --- {meta[F.FILE]}:{meta[F.LINE]}:{meta[F.FUNCTION]} - {meta[F.EXCEPTION_REPR]}"
                 )
-                delattr(response, "_exception_metadata")
+                delattr(response, F.EXCEPTION_METADATA)
             else:
                 logger.info(f"[{request_id}] --- {duration}ms") 
         else:
@@ -127,15 +125,7 @@ class LoggingMiddleware(MiddlewareMixin):
 
     def _get_client_ip(self, request):
         """Extract real client IP (handle proxies)"""
-        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        x_forwarded_for = request.META.get(F.HTTP_X_FORWARDED_FOR)
         if x_forwarded_for:
             return x_forwarded_for.split(",")[0].strip()
-        return request.META.get("REMOTE_ADDR", "unknown")
-
-    def _sanitize_query_params(self, params):
-        """Remove sensitive parameters"""
-        SENSITIVE = {"token", "api_key", "password", "secret", "auth", "key"}
-        return {
-            k: "***REDACTED***" if k.lower() in SENSITIVE else v
-            for k, v in params.items()
-        }
+        return request.META.get(F.REMOTE_ADDR, F.UNKNOWN)

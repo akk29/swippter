@@ -7,7 +7,7 @@ class AdminTest(unittest.TestCase):
     def test_admin(self):
         client = Client()
         response = client.get("/admin")
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_301_MOVED_PERMANENTLY)
 
     def test_admin_login(self):
         client = Client()

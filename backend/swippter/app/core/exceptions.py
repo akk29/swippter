@@ -30,11 +30,11 @@ def attach_meta_data(exc, response):
         line_no = last_frame.lineno
         func_name = last_frame.name
         response._exception_metadata = {
-            "exception_type": exc.__class__.__name__,
-            "file": file_name,
-            "line": line_no,
-            "function": func_name,
-            "exception_repr": exc.__repr__(),
+            F.EXCEPTION_TYPE: exc.__class__.__name__,
+            F.FILE: file_name,
+            F.LINE: line_no,
+            F.FUNCTION: func_name,
+            F.EXCEPTION_REPR: exc.__repr__(),
         }
     return response
 
