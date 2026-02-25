@@ -5,7 +5,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: "hostpath"
+  storageClassName: "standard"
   resources:
     requests:
       storage: 1Gi
