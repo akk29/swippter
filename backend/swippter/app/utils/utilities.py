@@ -3,6 +3,7 @@ import hashlib
 import json
 import random
 import re
+import os
 from datetime import datetime
 from django.http import HttpResponse
 from rest_framework import status as S
@@ -46,7 +47,7 @@ class FILLER:
     CREATED = "created"
     CONTENT = "content"
     CONTENT_LENGTH = "Content-Length"
-    CONTENT_TYPE = "content_type"
+    CONTENT_TYPE_FOR_REPR = "_content_type_for_repr"
     DATA = "data"
     DATABASE = "database"
     DELETED = "deleted"
@@ -186,7 +187,7 @@ class FILLER:
 
     # Logger msgs
     LOGGER_SETUP = "Setting up logger - objID - {}"
-    LOGGING_FORMAT = "%(asctime)s:%(name)s:%(levelname)s - %(module)s:%(filename)s:%(funcName)s:%(lineno)d --- %(message)s"
+    LOGGING_FORMAT = "%(asctime)s:%(name)s:%(levelname)s - %(pathname)s:%(funcName)s:%(lineno)d --- %(message)s"
     LOGGER_SETUP_SUCCESS = "logger setup complete"
 
     # Logging Colors

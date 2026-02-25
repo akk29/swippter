@@ -32,6 +32,7 @@ class Starter(SingletonPattern):
         success_msg,
         exit_msg,
         error_msg,
+        service_name,
         max_tries=3,
         attempt=1,
         cap=30,
@@ -49,7 +50,8 @@ class Starter(SingletonPattern):
                 self.logger.info(success_msg)
                 break
             except Exception as e:
-                if not critical:  # For first failure if not critical return immediately
+                if not critical: 
+                    self.logger.error(f'Error connecting {service_name}, skipping more retrying attempts..')
                     return None
                 delay = min(1 * 2**attempt, cap)
                 self.logger.error(error_msg.format(e, delay))
@@ -81,6 +83,7 @@ class Starter(SingletonPattern):
             F.REDIS_CONNECTION_SUCCESS,
             F.REDIS_CONNECTION_ERROR,
             F.REDIS_UNEXPECTED_ERROR,
+            F.REDIS,
             critical=critical,
         )
 
@@ -99,6 +102,7 @@ class Starter(SingletonPattern):
             F.DATABASE_CONNECTION_SUCCESS,
             F.DATABASE_CONNECTION_FAILED,
             F.DATABASE_UNEXPECTED_ERROR,
+            F.DATABASE,
             critical=critical,
         )
 
@@ -120,6 +124,7 @@ class Starter(SingletonPattern):
             F.RABBITMQ_CONNECTION_SUCCESS,
             F.RABBITMQ_IS_DOWN,
             F.RABBITMQ_UNEXPECTED_ERROR,
+            F.RABBITMQ,
             critical=critical,
         )
 
