@@ -2,11 +2,12 @@ from rest_framework import status as S
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from app.core.throttlers import CustomRateThrottle
-from app.pattern.factory.service_factory import ServiceFactory
+from app.pattern.abstract_factory import DefaultFactory
 from app.serializers.auth_serializers import UserSerializer, VerifyTokenSerializer
 from app.utils.utilities import get_http_response_msg, F
 from app.views.base_api_view import BaseAPIView
-auth_service = ServiceFactory.get_authentication_service()
+
+auth_service = DefaultFactory.get_service().authentication()
 class SignupView(BaseAPIView):
 
     throttle_classes = [CustomRateThrottle]

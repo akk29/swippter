@@ -1,10 +1,8 @@
-from django.core.cache import cache
-from django.db import connection
 from django.views.decorators.http import condition
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from app.core.throttlers import CustomRateThrottle
-from app.pattern.factory.service_factory import ServiceFactory
+from app.pattern.abstract_factory import DefaultFactory
 from app.utils.utilities import (
     F,
     get_http_response_msg,
@@ -84,7 +82,7 @@ from celery.exceptions import (
 )
 
 
-index_service = ServiceFactory.get_index_service()
+index_service = DefaultFactory.get_service().index()
 starter = Starter.get_instance()
 
 
