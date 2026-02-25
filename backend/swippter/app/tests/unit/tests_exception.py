@@ -1,7 +1,6 @@
 import unittest
 from django.core.exceptions import PermissionDenied
 from django.db import DatabaseError
-from django.test import Client
 from rest_framework.exceptions import Throttled, AuthenticationFailed
 from rest_framework_simplejwt.exceptions import ExpiredTokenError
 from app.core.exceptions import (
@@ -17,7 +16,6 @@ from app.core.exceptions import (
     Exception500,
     process_library_exceptions,
 )
-from rest_framework import status
 
 class RID:
     request_id = "12ed150f865a"
