@@ -21,17 +21,17 @@ class ChangePasswordModel(BaseModel):
 
 class AuthValidator(BaseValidator):
 
-    def signup_validator(self, data):
+    def signup(self, data):
         self.validate(SignUpModel, data)
 
-    def signin_validator(self, data):
+    def signin(self, data):
         self.validate(SigninModel, data)
 
-    def forgot_validator(self, data):
+    def forgot(self, data):
         self.validate(ForgotModel, data)
 
-    def verify_token_validator(self, data):
+    def verify_token(self, data):
         self.validate(VerifyTokenModel, data)
 
-    def change_password_validator(self, data):
+    def change_password(self, data):
         self.validate(ChangePasswordModel, data)

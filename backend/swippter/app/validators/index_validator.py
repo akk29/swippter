@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from app.validators.base_validator import BaseValidator
 
-class Model(BaseModel):
+class IndexModel(BaseModel):
     a: int
     b: float
     c: str
@@ -10,4 +10,4 @@ class Model(BaseModel):
 class IndexValidator(BaseValidator):
 
     def raise_error_validator(self,data):
-        self.validate(Model,data)
+        self.validate(IndexModel,data)

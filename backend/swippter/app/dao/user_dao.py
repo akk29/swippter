@@ -30,7 +30,7 @@ class UserDAO(BaseDAO):
         self.model = User
         self.starter = Starter.get_instance()
 
-    def signup_user(self, *args, **kwargs):
+    def signup(self, *args, **kwargs):
         valid_values = [RoleEnum.CONSUMER.value, RoleEnum.SELLER.value]
         if kwargs[F.ROLE] not in valid_values:
             raise InvalidRoleValueError(valid_values)
@@ -43,7 +43,7 @@ class UserDAO(BaseDAO):
         kwargs[F.PASSWORD] = generate_password_hash(kwargs[F.PASSWORD], kwargs[F.SALT])
         return self.create(**kwargs)
 
-    def authenticate_user(self, *args, **kwargs):
+    def signin(self, *args, **kwargs):
         user = self.fetch_one(**{F.EMAIL: kwargs[F.EMAIL].lower()})
         if not user:
             raise InvalidCredentialsError()
@@ -53,7 +53,7 @@ class UserDAO(BaseDAO):
             raise InvalidCredentialsError()
         return user
 
-    def generate_password_reset_token(self, **kwargs):
+    def forgot(self, **kwargs):
         user = self.fetch_one(**{F.EMAIL: kwargs[F.EMAIL].lower()})
         if user:
             uidb64 = urlsafe_base64_encode(force_bytes(user.uuid))
@@ -76,7 +76,7 @@ class UserDAO(BaseDAO):
             raise InvalidTokenError()
         return user
 
-    def change_user_password(self, user, **kwargs):
+    def change_password(self, user, **kwargs):
         password = kwargs[F.PASSWORD]
         if bcrypt.checkpw(password.encode(F.UTF8), user.password.encode(F.UTF8)):
             raise PasswordConflictError()
